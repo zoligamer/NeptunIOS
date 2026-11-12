@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:jupiter/colors.dart';
 import 'package:jupiter/language.dart';
@@ -126,8 +127,8 @@ class BottomNavigatorWidget extends StatelessWidget {
                               boxShadow: [
                                 BoxShadow(
                                   color: AppColors.getTheme().primary.withValues(alpha: 0.2),
-                                  blurRadius: 10,
-                                  spreadRadius: 1,
+                                  blurRadius: kIsWeb ? 4 : 10,
+                                  spreadRadius: kIsWeb ? 0 : 1,
                                 ),
                               ],
                             ),

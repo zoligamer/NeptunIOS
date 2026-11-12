@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -1107,70 +1108,79 @@ class _SetupPageLoginState extends State<SetupPageLogin>{
             Visibility(
               visible: _isLoading,
               child: Positioned.fill(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Container(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(
-                              AppStrings.getLanguagePack().loginPage_setupPage_LoginInProgress,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: AppColors.getTheme().textColor,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 28
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 60),
-                          Center(
-                            child: CircularProgressIndicator(
-                              color: AppColors.getTheme().textColor,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(
-                              api.Generic.randomLoadingComment(DataCache.getNeedFamilyFriendlyComments()!),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: AppColors.getTheme().textColor.withValues(alpha: .6),
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 10
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 60),
-                          Visibility(
-                            visible: _showNeptunServerError,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: Text(
-                                AppStrings.getLanguagePack().loginPage_setupPage_LoginInProgressSlow,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: AppColors.getTheme().textColor.withValues(alpha: .3),
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: 14
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                child: kIsWeb
+                    ? Container(
+                        color: Colors.black.withValues(alpha: 0.55),
+                        child: _buildLoadingOverlayContent(),
                       )
-                  ),
-                ),
+                    : BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          child: _buildLoadingOverlayContent(),
+                        ),
+                      ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLoadingOverlayContent() {
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            AppStrings.getLanguagePack().loginPage_setupPage_LoginInProgress,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: AppColors.getTheme().textColor,
+                fontWeight: FontWeight.w800,
+                fontSize: 28
+            ),
+          ),
+        ),
+        const SizedBox(height: 60),
+        Center(
+          child: CircularProgressIndicator(
+            color: AppColors.getTheme().textColor,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            api.Generic.randomLoadingComment(DataCache.getNeedFamilyFriendlyComments()!),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: AppColors.getTheme().textColor.withValues(alpha: .6),
+                fontWeight: FontWeight.w300,
+                fontSize: 10
+            ),
+          ),
+        ),
+        const SizedBox(height: 60),
+        Visibility(
+          visible: _showNeptunServerError,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              AppStrings.getLanguagePack().loginPage_setupPage_LoginInProgressSlow,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: AppColors.getTheme().textColor.withValues(alpha: .3),
+                  fontWeight: FontWeight.w300,
+                  fontSize: 14
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

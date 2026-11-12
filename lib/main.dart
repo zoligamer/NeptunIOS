@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:jupiter/colors.dart';
@@ -88,10 +90,23 @@ class ThemeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  static final PageTransitionsTheme _pageTransitionsTheme = PageTransitionsTheme(
+    builders: {
+      TargetPlatform.iOS: kIsWeb
+          ? const FadeUpwardsPageTransitionsBuilder()
+          : const CupertinoPageTransitionsBuilder(),
+      TargetPlatform.android: const FadeUpwardsPageTransitionsBuilder(),
+      TargetPlatform.macOS: const FadeUpwardsPageTransitionsBuilder(),
+      TargetPlatform.linux: const FadeUpwardsPageTransitionsBuilder(),
+      TargetPlatform.windows: const FadeUpwardsPageTransitionsBuilder(),
+    },
+  );
+
   ThemeData _buildTheme(bool isDark) {
     return ThemeData(
       scaffoldBackgroundColor: AppColors.getTheme().rootBackground,
       canvasColor: AppColors.getTheme().rootBackground,
+      pageTransitionsTheme: _pageTransitionsTheme,
       colorScheme: isDark ? ColorScheme.dark(
         primary: AppColors.getTheme().primary,
         onPrimary: AppColors.getTheme().onPrimary,
@@ -117,6 +132,7 @@ class ThemeNotifier extends ChangeNotifier {
     return ThemeData(
       scaffoldBackgroundColor: AppColors.getTheme().rootBackground,
       canvasColor: AppColors.getTheme().rootBackground,
+      pageTransitionsTheme: _pageTransitionsTheme,
       colorScheme: isDark ? ColorScheme.dark(
         primary: AppColors.getTheme().primary,
         onPrimary: AppColors.getTheme().onPrimary,

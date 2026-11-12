@@ -2831,11 +2831,19 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin, Widge
               child: AnimatedBuilder(
                 animation: blurController,
                 builder: (context, widget) {
+                  final alpha = blurAnimation.value * 0.45;
+                  if (kIsWeb) {
+                    return Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withValues(alpha: alpha),
+                      ),
+                    );
+                  }
                   return Positioned.fill(
                     child: BackdropFilter(
                        filter: ImageFilter.blur(sigmaX: blurAnimation.value * 15, sigmaY: blurAnimation.value * 15),
                        child: Container(
-                         color: Colors.black.withValues(alpha: blurAnimation.value * 0.4),
+                         color: Colors.black.withValues(alpha: alpha),
                        ),
                      ),
                   );

@@ -973,10 +973,11 @@ class PopupWidget extends State<PopupWidgetState> with TickerProviderStateMixin{
   Widget build(BuildContext context) {
     return AnimatedBuilder(
         animation: popupController,
-        builder: (context, _) {
+        child: getPopup(context),
+        builder: (context, child) {
           return Transform.scale(
               scale: poppuAnimation.value,
-              child: getPopup(context)
+              child: child
           );
         }
     );
