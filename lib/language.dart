@@ -1,0 +1,1802 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:convert' as conv;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
+import 'package:jupiter/storage.dart';
+import 'API/api_coms.dart';
+import 'Misc/popup.dart';
+import 'Pages/startup_page.dart';
+class AppStrings{
+  static bool _hasInit = false;
+  static late final String _defaultLocale;
+
+  static final List<String> _supportedLanguages = ['hu', 'en'];
+  static final List<String> _supportedLanguagesFlags = ['🇭🇺', '🇺🇸/🇬🇧'];
+  static final Map<String, LanguagePack> _languages = {};
+
+  static final List<String> _downloadedSupportedLanguages = [];
+  static final List<String> _downloadedSupportedLanguagesFlags = [];
+  static final Map<String, LanguagePack> _downloadedLanguages = {};
+
+  static void initialize(){
+    if(_hasInit){
+      return;
+    }
+    _defaultLocale = (kIsWeb
+        ? WidgetsBinding.instance.platformDispatcher.locale.languageCode
+        : Platform.localeName.split('_')[0]).toLowerCase();
+    _languages.addAll({_supportedLanguages[0]: LanguagePack(
+      language_flag: '🇭🇺',
+      rootpage_setupPage_SelectLoginTypeHeader: 'Válassz bejelentkezési módot',
+      rootpage_setupPage_InstitutesSelection: 'Intézmény választás',
+      rootpage_setupPage_InstitutesSelectionDescription: 'Ez a legkényelmesebb opció. Egy szimpla lista, amiben meg tudod keresni az egyetemedet, viszont nem minden intézmény található meg a listában!',
+      rootpage_setupPage_UrlLogin: 'Neptun URL',
+      rootpage_setupPage_UrlLoginDescription: 'Ha nincs az iskolád a listában, akkor az egyetemed neptun URL-jét használva is be tudsz lépni. Nem minden egyetemmel működik!',
+      rootpage_setupPage_AppProblemReporting: 'Probléma van az appal?\nÍrd meg nekem! 👉',
+      instituteSelection_setupPage_LoadingText: 'Betöltés...',
+      instituteSelection_setupPage_NoNetwork: 'Nincs internet...',
+      instituteSelection_setupPage_SelectValidInstitute: 'Válassz ki egy érvényes egyetemet! 😡',
+      instituteSelection_setupPage_SelectInstitute: 'Válassz intézményt',
+      instituteSelection_setupPage_Search: 'Keresés',
+      instituteSelection_setupPage_SearchNotFound: 'Nincs találat...',
+      instituteSelection_setupPage_InstituteCantFindHelpText: 'Nem találod az iskolád a listában?',
+      instituteSelection_setupPage_InstituteCantFindHelpTextDescription: 'A fenti listában szereplő elemek manuálisan lettek felvéve! 😅 Így előfordulhat, hogy egyes iskolák nincsenek benne a listában.\nJelentkezz be URL használatával, ha nem találod a sulid. 😉',
+      any_setupPage_GoBack: 'Vissza',
+      any_setupPage_ProceedLogin: 'Tovább',
+      urlLogin_setupPage_InvalidUrl: 'Írj be egy érvényes neptun URL-t! 😡',
+      urlLogin_setupPage_LoginViaURlHeader: 'Belépés URL-el',
+      urlLogin_setupPage_InstituteNeptunUrl: 'Egyetem neptun URL-je',
+      urlLogin_setupPage_InstituteNeptunUrlInvalid: 'Ez nem egy jó neptun URL! 😡\n\nValami ilyesmit másolj ide:\nhttps://neptun-ws01.uni-pannon.hu/hallgato/login.aspx 🤫',
+      urlLogin_setupPage_WhereIsURLHelper: 'Hol találom meg az URL-t?',
+      urlLogin_setupPage_WhereIsURLHelperDescription: 'Keresd meg weben az egyetemed neptun weboldalát és másold be ide a fenti linket. 🔗\n\nPld: https://neptun-ws01.uni-pannon.hu/hallgato/login.aspx',
+      loginPage_setupPage_InvalidCredentials: 'Érvényes adatokat adj meg! 😡',
+      loginPage_setupPage_LoginHeaderText: 'Jelentkezz be',
+      loginPage_setupPage_ActivityCacheInvalidHelper: 'HIBA! Lépj egyet vissza!',
+      loginPage_setupPage_NeptunCode: 'Neptun kód',
+      loginPage_setupPage_Password: 'Jelszó',
+      loginPage_setupPage_InvalidCredentialsEntered: 'Hibás felhasználónév vagy jelszó!',
+      loginPage_setupPage_2faWarning: 'Ha két lépcsős azonosítás van a fiókodon, nem fogsz tudni bejelenzkezni!',
+      loginPage_setupPage_2faWarningDescription: '❌ A Neptun2 a régi Neptun mobilapp API-jait használja, amiben nem volt 2 lépcsős azonosítás. Így, ha a fiókod 2 lépcsős azonosítással van védve, a Neptun2 nem fog tudni bejelentkeztetni.\n\n🤓 Viszont, ha kikapcsolod, hiba nélkül tudod használni a Neptun2-t.\nKikapcsolni a webes neptunban, a "Saját Adatok/Beállítások"-ban tudod.',
+      loginPage_setupPage_LogInButton: 'Belépés',
+      loginPage_setupPage_LoginInProgress: 'Bejelentkezés...',
+      loginPage_setupPage_LoginInProgressSlow: 'Neptun szervereivel lehet problémák vannak...',
+      api_monthJan_Universal: 'január',
+      api_monthFeb_Universal: 'február',
+      api_monthMar_Universal: 'március',
+      api_monthApr_Universal: 'április',
+      api_monthMay_Universal: 'május',
+      api_monthJun_Universal: 'június',
+      api_monthJul_Universal: 'július',
+      api_monthAug_Universal: 'augusztus',
+      api_monthSep_Universal: 'szeptember',
+      api_monthOkt_Universal: 'október',
+      api_monthNov_Universal: 'november',
+      api_monthDec_Universal: 'december',
+      api_dayMon_Universal: 'Hétfő',
+      api_dayTue_Universal: 'Kedd',
+      api_dayWed_Universal: 'Szerda',
+      api_dayThu_Universal: 'Csütörtök',
+      api_dayFri_Universal: 'Péntek',
+      api_daySat_Universal: 'Szombat',
+      api_daySun_Universal: 'Vasárnap',
+      api_loadingScreenHintFriendly1_Universal: 'Elfüstölne a telefonod, ha gyorsabb lenne...',
+      api_loadingScreenHintFriendly2_Universal: 'Még mindíg, jobb mint a nem létező Neptun mobilapp...',
+      api_loadingScreenHintFriendly3_Universal: 'Már bármelyik milleniumban betölthet...',
+      api_loadingScreenHintFriendly4_Universal: 'Áramszünet van az SDA Informatikánál...',
+      api_loadingScreenHintFriendly5_Universal: 'Az SDA Informatika egy nagyon jó cég...',
+      api_loadingScreenHintFriendly6_Universal: 'Tudtad? A "Neptun 2" alapja csupán 1 hét alatt készült...',
+      api_loadingScreenHintFriendly7_Universal: 'Túl lassú? Panaszkodj az SDA Informatikának...',
+      api_loadingScreenHint1_Universal: 'Úgy dolgoznak a Neptun szerverek, mint egy átlagos államilag finanszírozott útépítés...',
+      api_loadingScreenHint2_Universal: 'Megvárjuk, amíg az SDA Informatika főnöke kávéba fullad...',
+      api_loadingScreenHint3_Universal: 'Légy türelmes, egy patkány miatt zárlatos lett az egyik szerver...',
+      api_loadingScreenHint4_Universal: 'Előbb hiszem el, hogy az Északi-sarkon is vannak pingvinek, minthogy a Neptun szervereire pénzt költöttek...',
+      api_loadingScreenHint5_Universal: 'Neptun szerverei olyan megbízhatóak, bankolni is lehet rajtuk...',
+      api_loadingScreenHint6_Universal: 'SDA jelentése: Sok Dagadt Analfabéta. Egy normális mobilappot nem sikerült összehoziuk...',
+      api_loadingScreenHint7_Universal: 'Fogadni merek, mire ezt elolvasod, még mindíg a Neptun szervereire vársz...',
+      api_loadingScreenHintFriendlyMini1_Universal: 'Egy pillanat...',
+      api_loadingScreenHintFriendlyMini2_Universal: 'Alakul a molekula...',
+      api_loadingScreenHintFriendlyMini3_Universal: 'Csak szépen lassan...',
+      api_loadingScreenHintFriendlyMini4_Universal: 'Tölt valamit nagyon...',
+      api_loadingScreenHintMini1_Universal: 'Na, megvan?...',
+      api_loadingScreenHintMini2_Universal: 'Várjál! Nem megy ez ilyen gyorsan...',
+      api_loadingScreenHintMini3_Universal: 'Nem emlékszel mit olvastál? Szedj B6 vitamint!...',
+      api_noData_Universal: 'Nincs Adat',
+      view_header_Calendar: 'Órarend',
+      view_header_Messages: 'Üzenetek',
+      view_header_Payments: 'Befizetendők',
+      view_header_Periods: 'Időszakok',
+      view_header_Subjects: 'Tárgyak',
+      topheader_calendar_greetMessage_1to6: 'Boldog hajnalt! 🍼',
+      topheader_calendar_greetMessage_6to9: 'Jó reggelt! ☕',
+      topheader_calendar_greetMessage_9to13: 'Szép napot! 🍷',
+      topheader_calendar_greetMessage_13to17: 'Kellemes délutánt! 🥂',
+      topheader_calendar_greetMessage_17to21: 'Szép estét! 🍻',
+      topheader_calendar_greetMessage_21to1: 'Jó éjszakát! 🍹',
+      topheader_subjects_CreditsInSemester: 'Kredited ebben a félévben: %0🎖️',
+      topheader_payments_TotalMoneySpent: '%0Ft-ot költöttél az egyetemre 💸',
+      topheader_periods_ActiveText: 'Aktuális',
+      topheader_periods_ExpiredText: 'Lejárt',
+      topheader_periods_FutureText: 'Jövőbeli',
+      topheader_periods_MainHeader: '%0 %1, %2 %3, %4 %5 🗓️',
+      topheader_messages_UnreadMessages: '%0 olvasatlan üzeneted van 💌',
+      topmenu_Greet: 'Szia %0! 👋',
+      topmenu_LoginPlace: 'Ide vagy bejelentkezve: 🔗\n%0',
+      topmenu_buttons_Settings: '⚙ Beállítások',
+      topmenu_buttons_SupportDev: '🎁 Fejlesztés támogatása',
+      topmenu_buttons_Bugreport: '🐞 Hibabejelentés',
+      topmenu_buttons_Logout: '🚪 Kijelentkezés',
+      topmenu_buttons_LogoutSuccessToast: 'Sikeresen kijelentkeztél! 🚪',
+      topmenu_SemesterSelectorTitle: 'Félév',
+      topmenu_SemesterToast: 'Félév átváltva: %0',
+      topmenu_AccountBalance: 'Gyűjtőszámla egyenleg',
+      topmenu_UnreadMessagesBadge: '%0 új üzenet',
+      topmenu_NoUnreadMessages: 'Nincs új üzenet',
+      topmenu_MessagesTitle: 'Üzenetek',
+      topmenu_PaymentsTitle: 'Pénzügyek',
+      topmenu_PetitionsTitle: 'Kérvények',
+      topmenu_DocumentsTitle: 'Dokumentumtár',
+      topmenu_ProfileTitle: 'Személyes Adatok & Beállítások',
+      petitions_Header: 'Kérvénykezelés',
+      petitions_TabAvailable: 'Leadható kérvények',
+      petitions_TabSubmitted: 'Leadott kérvények',
+      petitions_SearchHint: 'Kérvény keresése...',
+      petitions_NoAvailable: 'Nincs leadható kérvény',
+      petitions_NoSubmitted: 'Nincs leadott kérvény',
+      petitions_SubmitButton: 'Kérvény leadása',
+      petitions_StepFill: 'Adatok megadása',
+      petitions_StepPreview: 'Nyomtatási előnézet',
+      petitions_SubmitSuccess: 'A kérvény sikeresen leadva!',
+      petitions_SubmitConfirm: 'Biztosan be szeretnéd nyújtani a kérvényt?',
+      petitions_Fee: 'Díj',
+      petitions_ValidUntil: 'Érvényesség',
+      petitions_StatusAccepted: 'Elfogadva',
+      petitions_StatusRejected: 'Elutasítva',
+      petitions_StatusProcessing: 'Feldolgozás alatt',
+      petitions_TabStarted: 'Megkezdett',
+      petitions_NoStarted: 'Nincs megkezdett kérvény',
+      petitions_Continue: 'Folytatás',
+      petitions_Reset: 'Visszaállítás',
+      petitions_ResetConfirm: 'Biztosan elveted a megkezdett kérvényt? A kitöltött adatok elvesznek, és a kérvény visszakerül a leadható kérvények közé.',
+      petitions_ResetSuccess: 'A kérvény piszkozata sikeresen törölve!',
+      petitions_ExitOptionsTitle: 'Kilépés a kérvényből',
+      petitions_ExitKeepDraft: 'Mentés piszkozatként és kilépés',
+      petitions_ExitDiscard: 'Kilépés mentés nélkül (visszaállítás)',
+      calendarFilter_Title: 'Órarendi Beállítások',
+      calendarFilter_TO: 'Tanulmányi Iroda (TO) sáv',
+      calendarFilter_TODesc: 'Félfogadási idők és helyszínek jelzése a naptárban',
+      calendarFilter_Periods: 'Időszakok jelzése az órarendben',
+      calendarFilter_PeriodsDesc: 'Aktuális féléves időszakok megjelenítése',
+      topbar_TOOn: 'TO Be',
+      topbar_TOOff: 'TO Ki',
+      profile_TabDetails: 'Adatlap',
+      profile_TabSettings: 'Beállítások',
+      profile_Header: 'Személyes Adatok & Beállítások',
+      profile_Subheader: 'Hallgatói törzsadatlap és biztonság',
+      documents_Header: 'Dokumentumtár',
+      documents_Subheader: 'Hivatalos határozatok, igazolások és iratok',
+      documents_TabOfficial: 'Hivatalos',
+      documents_TabSubmitted: 'Benyújtott',
+      documents_TabTr: 'TR iratok',
+      calendarPage_FreeDay: '🥳Szabadnap!🥳',
+      calendarPage_weekNav_ClassesThisWeekFull: 'Óráid ezen a héten: %0 %1. - %2 %3.',
+      calendarPage_weekNav_ClassesThisWeekOneDay: 'Órád ezen a héten: %0 %1. (%2)',
+      calendarPage_weekNav_ClassesThisWeekEmpty: 'Üres ez a heted! 🥳',
+      calendarPage_weekNav_ClassesThisWeekLoading: 'Gondolkodunk... 🤔',
+      calendarPage_weekNav_StudyWeek: '%0. oktatási hét',
+      calendarPage_weekNav_JumpToCurrentWeek: 'Ugrás a mai hétre',
+      calendar_status_online: 'Online / Szinkronizálva',
+      calendar_status_offline: 'Offline / Helyi gyorsítótár',
+      timetable_badge_overlapping: '⚡ Ütköző',
+      timetable_badge_long_lesson: '3+ óra',
+      timetable_break_title: 'Szünet',
+      timetable_next_class_prefix: 'Köv:',
+      popup_2fa_title: 'Kétlépcsős azonosítás',
+      popup_2fa_desc: 'Add meg a hitelesítő alkalmazásban generált 6 jegyű kódot!',
+      popup_2fa_cancel: 'Mégsem',
+      markbookPage_AverageDisplay: 'Átlagod: %0 %1',
+      markbookPage_AverageScholarshipDisplay: 'Ösztöndíj indexed: %0 %1',
+      markbookPage_NoGrades: 'nincs jegyed',
+      markbookPage_Empty: '🤪Nincs Tantárgyad🤪',
+      markbookPage_CompletedLine: 'Elvégezve',
+      paymentPage_Empty: '😇Nem Tartozol😇',
+      paymentPage_MoneyDisplay: '%0Ft',
+      paymentPage_PaymentDeadlineTime: '(%0 nap van hátra)',
+      paymentPage_PaymentMissedTime: '(%0 nappal lekésve)',
+      periodPage_Empty: '🤩Szünet Van🤩',
+      periodPage_Expired: 'Lejárt: ',
+      periodPage_Starts: 'Kezdődik: ',
+      periodPage_ActiveDays: '(%0 nap van hátra)',
+      periodPage_StartDays: '(%0 nap múlva)',
+      periodPage_ExpiredDays: '(%0 napja)',
+      messagePage_SentBy: 'Küldte: %0',
+      messagePage_Empty: '😥Nincs Üzeneted😥',
+      messagePage_MarkAllAsRead: 'Mind olvasottnak jelölése',
+      messagePage_AllMarkedAsReadToast: 'Minden üzenet olvasottnak jelölve! ✉️',
+      popup_case0_GhostGradeHeader: '👻 Szellemjegy 👻',
+      popup_case0_SelectGrade: 'Válassz jegyet...',
+      popup_caseAll_OkButton: 'Ok',
+      popup_case1_SettingsHeader: '⚙ Beállítások ⚙',
+      popup_case1_settingOption1_FamilyFriendlyLoadingText: 'Szókimondó betöltőszövegek',
+      popup_case1_settingOption1_FamilyFriendlyLoadingTextDescription: 'Ha bekapcsolod, lecseréli a betöltő szövegeket szókimondóra.',
+      popup_case1_settingOption2_ExamNotifications: 'Vizsga értesítők',
+      popup_case1_settingOption2_ExamNotificationsDescription: 'Vizsgaértesítő értesítéseket küld neked a vizsga előtti 2 hétben. Hasznos, ha szereted halogatni a tanulást, vagy szimplán feledékeny vagy.',
+      popup_case1_settingOption3_ClassNotifications: 'Órák előtti értesítések',
+      popup_case1_settingOption3_ClassNotificationsDescription: 'Órák kezdete előtt 10 percel; 5 percel; és a kezdetük időpontjában, küld neked értesítést, hogy ne késd le őket. Hasznos, ha tudni akarod milyen órád lesz, anélkül, hogy a telódon lecsekkolnád. (pl: Okosórád van, és értesítésként látod a kövi órádat.)',
+      popup_case1_settingOption4_PaymentNotifications: 'Befizetés értesítők',
+      popup_case1_settingOption4_PaymentNotificationsDescription: 'Ha van befizetnivalód, értesíteni fog az app, minden nap, amíg nem fizeted be. Hasznos, ha feledékeny vagy, vagy nem szeretnéd lekésni a határidőt.',
+      popup_case1_settingOption5_PeriodsNotifications: 'Időszak értesítők',
+      popup_case1_settingOption5_PeriodsNotificationsDescription: 'Ha valamilyen új időszak lesz, értesíteni fog az app, az adott időszak előtt 1 nappal, és aznap fogsz értesítést kapni. Hasznos, ha nem akarsz lemaradni az adott időszakokról. (pl: tárgyfelvételi időszak)',
+      popup_case1_settingOption_MessageNotifications: 'Új üzenet értesítők',
+      popup_case1_settingOption_MessageNotificationsDescription: 'Értesítést küld, ha új olvasatlan Neptun üzeneted érkezik.',
+      popup_case1_settingOption6_AppHaptics: 'App haptika',
+      popup_case1_settingOption6_AppHapticsDescription: 'Beállíthatod, hogy kapj haptikai visszajelzést az appban történő dolgokról. (Rezgés)',
+      popup_case1_settingOption7_WeekOffset: 'Tanulmányi hét eltolás',
+      popup_case1_settingOption7_WeekOffsetDescription: 'Ha nem jól írja ki az app az aktuális heted, itt át tudod állítani!',
+      popup_case1_settingOption7_WeekOffsetAuto: 'Auto',
+      popup_case1_settingBottomText_InstallOrigin: '%0 - Telepítve innen: ',
+      popup_case1_settingBottomText_InstallOrigin3rdParty: 'Csomagtelepítő',
+      popup_case1_settingBottomText_InstallOriginGPlay: 'Play Áruház',
+      popup_case2_RateAppPopup: '⭐ Értékeld Az Appot! ⭐',
+      popup_case2_RateAppPopupDescription: 'Tetszik az app? Esetleg nem? Értékeld a Play Áruházban!\n10 másodpercet vesz igénybe, és ezzel információt nyújthatsz nekem, és másoknak.',
+      popup_case2_RateButton: 'Értékelem',
+      popup_case3_MessagesHeader: '💌 Üzenet 💌',
+      clickableText_OnCopy: 'Másolva! 📋',
+      popup_case4_SubjectInfo: '📢 Óra Infó 📢',
+      popup_case4_TeachedBy: 'Tanítja:',
+      popup_case4_5_SubjectCode: 'Tárgykód:',
+      popup_case4_5_SubjectLocation: 'Helyszín:',
+      popup_case4_SubjectStartTime: 'Órakezdés:',
+      popup_case5_ExamInfo: '⚠️ Vizsga Infó ⚠️',
+      popup_case5_ExamStartTime: 'Vizsgaidőpont:',
+      popup_case6_AccountError: '🤷 Probléma van a fiókoddal 🤷',
+      popup_case6_AccountErrorDescription: 'Úgy tűnik nem tudjuk lekérni az adatokat a neptunodból.\nKérlek jelentkezz ki, majd vissza.',
+      popup_case6_AccountErrorLogoutButton: 'Kijelentkezés',
+      popup_case1_settingOption8_LangaugeSelection: 'App nyelv',
+      popup_case1_settingOption8_LangaugeSelectionDescription: 'Válaszd ki milyen nyelven szóljon hozzád az app.',
+      popup_case7_ObsolteAppVersion: '🫵 Régi App Verzió 🫵',
+      popup_case7_ObsolteAppVersionDescription: 'Ez a app verzió elavult.\nA legjobb felhasználói élmény érdekében, javasoljuk, hogy frissítsd le! 😌',
+      popup_case7_ButtonUpdateNow: 'Frissítés',
+      popup_caseDefault_InvalidPopupState: 'Hiányos Adatok...',
+      popup_case8_AcceptLanguageSuggestion: '🗣️ App Nyelvezet 🗣️',
+      popup_case8_AcceptLanguageSuggestionDescription: 'Az app támogatja az általad beszélt nyelvet.\nHa gondolod állítsd be.',
+      popup_case8_ButtonAcceptLang: 'Beállít',
+      popup_case1_langSwap_DownloadingLang: 'Nyelv letöltése',
+      popup_case1_langSwap_DownloadingLangFail: 'Nem lehet letölteni, nincs internet',
+      popup_case1_settingOption9_ThemeSwap: 'App téma',
+      popup_case1_settingOption9_ThemeSwapDescription: 'Válaszd ki milyen színű legyen az app',
+      popup_case1_themeSwap_DownloadingThemeFail : 'Téma letöltése',
+      rootpage_setupPage_IcsImport: 'Naptár használat',
+      rootpage_setupPage_IcsImportDescription: 'Betudod importálni a neptunos órarendedet, viszont ha az órarendedben változás történik, arról te nem fogsz értesülni.\nCsak annak ajánlott, aki semmilyen módon nem tud bejelentkezni!',
+      rootpage_setupPage_OtherUsageModes: 'Offline módok',
+      calendarLogin_setupPage_InvalidFile: 'Hibás ICS fájl! 😵',
+      calendarLogin_setupPage_LoginViaICSHeader: 'Naptár használat',
+      calendarLogin_setupPage_WhereIsICSHelper: 'Nem tudod merre találod a neptunos órarended (.ics fájl)?',
+      calendarLogin_setupPage_WhereIsICSHelperDescription: 'Lépj a "Saját adatok" > "Beállítások" > "Naptár export"\nHa pontos heti megjelenítést akarsz akkor, szeptember 1.-jétől (xxxx.09.01), a következő év szeptember 1.-éig (xxxx.09.01) exportáld ki a naptárad! 🤓',
+      calendarLogin_setupPage_ImportICSFileHelpText: 'Kattits a gombra, majd válaszd ki a frissen letöltött órarend fájlodat!',
+      calendarLogin_setupPage_ImportICSFileButton: 'Feltöltés'
+    )});
+    //---
+    _languages.addAll({_supportedLanguages[1]: LanguagePack(
+      language_flag: '🇺🇸/🇬🇧',
+      rootpage_setupPage_SelectLoginTypeHeader: 'Select login method',
+      rootpage_setupPage_InstitutesSelection: 'Institute selection',
+      rootpage_setupPage_InstitutesSelectionDescription: 'This is the simplest way. It is a list where you can search for your university, however, not all institutes can be found here!',
+      rootpage_setupPage_UrlLogin: 'Neptun URL',
+      rootpage_setupPage_UrlLoginDescription: 'If you can\'t find your university in the list, you can enter the Neptun URL of your school to log in. This might not work with all universities!',
+      rootpage_setupPage_AppProblemReporting: 'Is there a problem with the app?\nTell me! 👉',
+      instituteSelection_setupPage_LoadingText: 'Loading...',
+      instituteSelection_setupPage_NoNetwork: 'No network...',
+      instituteSelection_setupPage_SelectValidInstitute: 'Select a valid institute! 😡',
+      instituteSelection_setupPage_SelectInstitute: 'Select institute',
+      instituteSelection_setupPage_Search: 'Search',
+      instituteSelection_setupPage_SearchNotFound: 'Nothing found...',
+      instituteSelection_setupPage_InstituteCantFindHelpText: 'Can\'t find your school in the list?',
+      instituteSelection_setupPage_InstituteCantFindHelpTextDescription: 'Items in the list above were added manually! 😅 It is possible that some institutes are missing from it.\nYou can log in via URL if you can\'t find your school. 😉',
+      any_setupPage_GoBack: 'Back',
+      any_setupPage_ProceedLogin: 'Proceed',
+      urlLogin_setupPage_InvalidUrl: 'Enter a valid Neptun URL! 😡',
+      urlLogin_setupPage_LoginViaURlHeader: 'Login via URL',
+      urlLogin_setupPage_InstituteNeptunUrl: 'Institute Neptun URL',
+      urlLogin_setupPage_InstituteNeptunUrlInvalid: 'This is not a valid Neptun URL! 😡\n\nPaste something similar here:\nhttps://neptun-ws01.uni-pannon.hu/hallgato/login.aspx 🤫',
+      urlLogin_setupPage_WhereIsURLHelper: 'Where do I find the URL?',
+      urlLogin_setupPage_WhereIsURLHelperDescription: 'Go to your school\'s Neptun website, and paste the link from up top. 🔗\n\nEx: https://neptun-ws01.uni-pannon.hu/hallgato/login.aspx',
+      loginPage_setupPage_InvalidCredentials: 'Provide valid credentials! 😡',
+      loginPage_setupPage_LoginHeaderText: 'Log in',
+      loginPage_setupPage_ActivityCacheInvalidHelper: 'ERROR! Please go back!',
+      loginPage_setupPage_NeptunCode: 'Neptun code',
+      loginPage_setupPage_Password: 'Password',
+      loginPage_setupPage_InvalidCredentialsEntered: 'Invalid username or password!',
+      loginPage_setupPage_2faWarning: 'If you have multi-factor authentication enabled on your account, you won\'t be able to log in!',
+      loginPage_setupPage_2faWarningDescription: '❌ Neptun2 uses the old Neptun mobile app API, which didn\'t include multi-factor authentication. If your account is protected by it, you won\'t be able to log in via Neptun2.\n\n🤓 But you can turn it off, and you will be able to use Neptun2 without a problem.\nTo turn it off, go to "My Data/Settings" in Neptun web.',
+      loginPage_setupPage_LogInButton: 'Login',
+      loginPage_setupPage_LoginInProgress: 'Logging in...',
+      loginPage_setupPage_LoginInProgressSlow: 'Neptun servers are having a hard time...',
+      api_monthJan_Universal: 'january',
+      api_monthFeb_Universal: 'february',
+      api_monthMar_Universal: 'march',
+      api_monthApr_Universal: 'april',
+      api_monthMay_Universal: 'may',
+      api_monthJun_Universal: 'june',
+      api_monthJul_Universal: 'july',
+      api_monthAug_Universal: 'august',
+      api_monthSep_Universal: 'september',
+      api_monthOkt_Universal: 'october',
+      api_monthNov_Universal: 'november',
+      api_monthDec_Universal: 'december',
+      api_dayMon_Universal: 'Monday',
+      api_dayTue_Universal: 'Tuesday',
+      api_dayWed_Universal: 'Wednesday',
+      api_dayThu_Universal: 'Thursday',
+      api_dayFri_Universal: 'Friday',
+      api_daySat_Universal: 'Saturday',
+      api_daySun_Universal: 'Sunday',
+      api_loadingScreenHintFriendly1_Universal: 'Your phone would go up in flames if this was faster...',
+      api_loadingScreenHintFriendly2_Universal: 'Still better than the non-existent Neptun mobile app...',
+      api_loadingScreenHintFriendly3_Universal: 'Loads in any millennium now...',
+      api_loadingScreenHintFriendly4_Universal: 'There\'s a power outage at SDA informatics...',
+      api_loadingScreenHintFriendly5_Universal: 'SDA informatics is an amazing company...',
+      api_loadingScreenHintFriendly6_Universal: 'Did you know? "Neptun 2" was created in about 1 week...',
+      api_loadingScreenHintFriendly7_Universal: 'Too slow? Send a complaint to SDA informatics...',
+      api_loadingScreenHint1_Universal: 'The Neptun servers are working as hard as an average Hungarian construction worker...',
+      api_loadingScreenHint2_Universal: 'We are waiting until the CEO of SDA informatics drowns in coffee...',
+      api_loadingScreenHint3_Universal: 'Be patient, the servers are down because a rat got into them...',
+      api_loadingScreenHint4_Universal: 'I\'m more likely to believe there are penguins at the North Pole than SDA informatics has spent money on Neptun servers...',
+      api_loadingScreenHint5_Universal: 'Neptun servers are so reliable, I would do my banking on them...',
+      api_loadingScreenHint6_Universal: 'SDA meaning: Sok Dagadt Analfabéta, aka: Many Fat Analfabetics. They couldn\'t create a usable mobile app...',
+      api_loadingScreenHint7_Universal: 'I would bet my house that you are still reading this because it is still loading...',
+      api_loadingScreenHintFriendlyMini1_Universal: 'Just a second...',
+      api_loadingScreenHintFriendlyMini2_Universal: 'We are getting there...',
+      api_loadingScreenHintFriendlyMini3_Universal: 'Easy does it...',
+      api_loadingScreenHintFriendlyMini4_Universal: 'It\'s really loading something...',
+      api_loadingScreenHintMini1_Universal: 'So, found it?...',
+      api_loadingScreenHintMini2_Universal: 'Hold up! It can\'t do it that fast...',
+      api_loadingScreenHintMini3_Universal: 'Forgot what you just read? Try taking B6 vitamins!...',
+      api_noData_Universal: 'No Data',
+      view_header_Calendar: 'Calendar',
+      view_header_Messages: 'Messages',
+      view_header_Payments: 'Payments',
+      view_header_Periods: 'Periods',
+      view_header_Subjects: 'Subjects',
+      topheader_calendar_greetMessage_1to6: 'Merry midnight! 🍼',
+      topheader_calendar_greetMessage_6to9: 'Good morning! ☕',
+      topheader_calendar_greetMessage_9to13: 'Good day! 🍷',
+      topheader_calendar_greetMessage_13to17: 'Good afternoon! 🥂',
+      topheader_calendar_greetMessage_17to21: 'Good evening! 🍻',
+      topheader_calendar_greetMessage_21to1: 'Good night! 🍹',
+      topheader_subjects_CreditsInSemester: 'Your credits this semester: %0🎖️',
+      topheader_payments_TotalMoneySpent: 'You have spent %0Huf on university 💸',
+      topheader_periods_ActiveText: 'Active',
+      topheader_periods_ExpiredText: 'Expired',
+      topheader_periods_FutureText: 'Future',
+      topheader_periods_MainHeader: '%0 %1, %2 %3, %4 %5 🗓️',
+      topheader_messages_UnreadMessages: 'You have %0 unread messages 💌',
+      topmenu_Greet: 'Hello %0! 👋',
+      topmenu_LoginPlace: 'You are logged in here: 🔗\n%0',
+      topmenu_buttons_Settings: '⚙ Settings',
+      topmenu_buttons_SupportDev: '🎁 Support developer',
+      topmenu_buttons_Bugreport: '🐞 Bug report',
+      topmenu_buttons_Logout: '🚪 Log out',
+      topmenu_buttons_LogoutSuccessToast: 'You have logged out successfully! 🚪',
+      topmenu_SemesterSelectorTitle: 'Semester',
+      topmenu_SemesterToast: 'Semester switched: %0',
+      topmenu_AccountBalance: 'Account balance',
+      topmenu_UnreadMessagesBadge: '%0 new messages',
+      topmenu_NoUnreadMessages: 'No new messages',
+      topmenu_MessagesTitle: 'Messages',
+      topmenu_PaymentsTitle: 'Finances',
+      topmenu_PetitionsTitle: 'Requests & Petitions',
+      topmenu_DocumentsTitle: 'Document Vault',
+      topmenu_ProfileTitle: 'Personal Data & Settings',
+      petitions_Header: 'Requests & Petitions',
+      petitions_TabAvailable: 'Available Requests',
+      petitions_TabSubmitted: 'Submitted Requests',
+      petitions_SearchHint: 'Search requests...',
+      petitions_NoAvailable: 'No available requests',
+      petitions_NoSubmitted: 'No submitted requests',
+      petitions_SubmitButton: 'Submit Request',
+      petitions_StepFill: 'Fill in Details',
+      petitions_StepPreview: 'Print Preview',
+      petitions_SubmitSuccess: 'Request submitted successfully!',
+      petitions_SubmitConfirm: 'Are you sure you want to submit this request?',
+      petitions_Fee: 'Fee',
+      petitions_ValidUntil: 'Validity',
+      petitions_StatusAccepted: 'Accepted',
+      petitions_StatusRejected: 'Rejected',
+      petitions_StatusProcessing: 'In Progress',
+      petitions_TabStarted: 'In Progress',
+      petitions_NoStarted: 'No petitions in progress',
+      petitions_Continue: 'Continue',
+      petitions_Reset: 'Reset',
+      petitions_ResetConfirm: 'Are you sure you want to discard this started petition? All entered data will be reset, and the petition will return to available.',
+      petitions_ResetSuccess: 'Started petition discarded successfully!',
+      petitions_ExitOptionsTitle: 'Exit Petition',
+      petitions_ExitKeepDraft: 'Save draft & exit',
+      petitions_ExitDiscard: 'Exit without saving (reset)',
+      calendarFilter_Title: 'Timetable Settings',
+      calendarFilter_TO: 'Student Office (TO) schedule',
+      calendarFilter_TODesc: 'Show office hours and rooms in calendar',
+      calendarFilter_Periods: 'Show periods in timetable',
+      calendarFilter_PeriodsDesc: 'Display active semester periods',
+      topbar_TOOn: 'TO On',
+      topbar_TOOff: 'TO Off',
+      profile_TabDetails: 'Profile',
+      profile_TabSettings: 'Settings',
+      profile_Header: 'Personal Data & Settings',
+      profile_Subheader: 'Student master record and security',
+      documents_Header: 'Document Vault',
+      documents_Subheader: 'Official resolutions, certificates and records',
+      documents_TabOfficial: 'Official',
+      documents_TabSubmitted: 'Submitted',
+      documents_TabTr: 'TR Records',
+      calendarPage_FreeDay: '🥳Free Day!🥳',
+      calendarPage_weekNav_ClassesThisWeekFull: 'Classes this week: %0 %1. - %2 %3.',
+      calendarPage_weekNav_ClassesThisWeekOneDay: 'Class this week: %0 %1. (%2)',
+      calendarPage_weekNav_ClassesThisWeekEmpty: 'This week is empty! 🥳',
+      calendarPage_weekNav_ClassesThisWeekLoading: 'Thinking... 🤔',
+      calendarPage_weekNav_StudyWeek: '%0. education week',
+      calendarPage_weekNav_JumpToCurrentWeek: 'Jump to current week',
+      calendar_status_online: 'Online / Synced',
+      calendar_status_offline: 'Offline / Cached',
+      timetable_badge_overlapping: '⚡ Overlapping',
+      timetable_badge_long_lesson: '3+ hrs',
+      timetable_break_title: 'Break',
+      timetable_next_class_prefix: 'Next:',
+      popup_2fa_title: 'Two-factor Authentication',
+      popup_2fa_desc: 'Enter the 6-digit code generated in your authenticator app!',
+      popup_2fa_cancel: 'Cancel',
+      markbookPage_AverageDisplay: 'Average: %0 %1',
+      markbookPage_AverageScholarshipDisplay: 'Scholarship index: %0 %1',
+      markbookPage_NoGrades: 'You have no grades',
+      markbookPage_Empty: '🤪You don\'t have any subjects🤪',
+      markbookPage_CompletedLine: 'Completed',
+      paymentPage_Empty: '😇All paid😇',
+      paymentPage_MoneyDisplay: '%0Huf',
+      paymentPage_PaymentDeadlineTime: '(%0 days remaining)',
+      paymentPage_PaymentMissedTime: '(%0 days since deadline)',
+      periodPage_Empty: '🤩Break time🤩',
+      periodPage_Expired: 'Expired: ',
+      periodPage_Starts: 'Starts: ',
+      periodPage_ActiveDays: '(%0 days remaining)',
+      periodPage_StartDays: '(in %0 days)',
+      periodPage_ExpiredDays: '(%0 days ago)',
+      messagePage_SentBy: 'Sent by: %0',
+      messagePage_Empty: '😥You don\'t have any messages😥',
+      messagePage_MarkAllAsRead: 'Mark all as read',
+      messagePage_AllMarkedAsReadToast: 'All messages marked as read! ✉️',
+      popup_case0_GhostGradeHeader: '👻 Ghost grade 👻',
+      popup_case0_SelectGrade: 'Select grade...',
+      popup_caseAll_OkButton: 'Ok',
+      popup_case1_SettingsHeader: '⚙ Settings ⚙',
+      popup_case1_settingOption1_FamilyFriendlyLoadingText: 'Outspoken loading texts',
+      popup_case1_settingOption1_FamilyFriendlyLoadingTextDescription: 'If you turn this on, loading texts will become outspoken.',
+      popup_case1_settingOption2_ExamNotifications: 'Exam notifications',
+      popup_case1_settingOption2_ExamNotificationsDescription: 'Exam notifications will send you notifications 2 weeks beforehand. It is useful if you like procrastinating studying, or tend to forget.',
+      popup_case1_settingOption3_ClassNotifications: 'Notifications before classes',
+      popup_case1_settingOption3_ClassNotificationsDescription: 'It will send you notifications 10 minutes, 5 minutes, and at the start of the class, so you won\'t miss them. Useful if you want to know what class you are going to have beforehand, without needing to check your phone (ex: You have a smartwatch)',
+      popup_case1_settingOption4_PaymentNotifications: 'Payment notifications',
+      popup_case1_settingOption4_PaymentNotificationsDescription: 'If you have payments due, the app will notify you every day, until they are paid. Useful if you tend to forget, or just don\'t want to miss a due date.',
+      popup_case1_settingOption5_PeriodsNotifications: 'Period notifications',
+      popup_case1_settingOption5_PeriodsNotificationsDescription: 'If a new period is about to become active, the app will notify you 1 day before the given period, and the day they become active. Useful if you don\'t want to miss something important tied to periods (ex: class registration period).',
+      popup_case1_settingOption_MessageNotifications: 'New message notifications',
+      popup_case1_settingOption_MessageNotificationsDescription: 'Sends a notification when a new unread Neptun message arrives.',
+      popup_case1_settingOption6_AppHaptics: 'App haptics',
+      popup_case1_settingOption6_AppHapticsDescription: 'You can set if you want the app to give you haptic feedback (vibrate).',
+      popup_case1_settingOption7_WeekOffset: 'Study week offset',
+      popup_case1_settingOption7_WeekOffsetDescription: 'If you have issues with the current study week, you can offset it to the correct week!',
+      popup_case1_settingOption7_WeekOffsetAuto: 'Auto',
+      popup_case1_settingBottomText_InstallOrigin: '%0 - Installed from: ',
+      popup_case1_settingBottomText_InstallOrigin3rdParty: 'Package Installer',
+      popup_case1_settingBottomText_InstallOriginGPlay: 'Google Play',
+      popup_case2_RateAppPopup: '⭐ Rate The App! ⭐',
+      popup_case2_RateAppPopupDescription: 'Do you like the app? Do you hate it? Rate it on Google Play!\nIt takes about 10 seconds, and it gives me and other users feedback.',
+      popup_case2_RateButton: 'Rate it',
+      popup_case3_MessagesHeader: '💌 Message 💌',
+      clickableText_OnCopy: 'Copied! 📋',
+      popup_case4_SubjectInfo: '📢 Subject Info 📢',
+      popup_case4_TeachedBy: 'Taught by:',
+      popup_case4_5_SubjectCode: 'Subject code:',
+      popup_case4_5_SubjectLocation: 'Location:',
+      popup_case4_SubjectStartTime: 'Subject start time:',
+      popup_case5_ExamInfo: '⚠️ Exam Info ⚠️',
+      popup_case5_ExamStartTime: 'Exam start time:',
+      popup_case6_AccountError: '🤷 There is an issue with your account 🤷',
+      popup_case6_AccountErrorDescription: 'It seems like we can\'t fetch data from your Neptun.\nPlease log out, and log back in.',
+      popup_case6_AccountErrorLogoutButton: 'Logout',
+      popup_case1_settingOption8_LangaugeSelection: 'App language',
+      popup_case1_settingOption8_LangaugeSelectionDescription: 'Select what language the app shall speak to you.',
+      popup_case7_ObsolteAppVersion: '🫵 Old App Version 🫵',
+      popup_case7_ObsolteAppVersionDescription: 'This version of the app is outdated.\nPlease consider updating the app for the best user experience! 😌',
+      popup_case7_ButtonUpdateNow: 'Update',
+      popup_caseDefault_InvalidPopupState: 'Missing Data...',
+      popup_case8_AcceptLanguageSuggestion: '🗣️ App Language 🗣️',
+      popup_case8_AcceptLanguageSuggestionDescription: 'The app supports the language you are speaking.\nChange it if you want to.',
+      popup_case8_ButtonAcceptLang: 'Change',
+      popup_case1_langSwap_DownloadingLang: 'Downloading language',
+      popup_case1_langSwap_DownloadingLangFail: 'Can\'t download, no internet',
+      popup_case1_settingOption9_ThemeSwap: 'App theme',
+      popup_case1_settingOption9_ThemeSwapDescription: 'Select how the app should look like',
+      popup_case1_themeSwap_DownloadingThemeFail: 'Downloading theme',
+      rootpage_setupPage_IcsImport: 'Calendar Use',
+      rootpage_setupPage_IcsImportDescription: 'You can load your timetable, if it was a calendar, but if the university makes a change with it, you will not have the latest one.\nYou should only use this, if you can not login into the app!',
+      rootpage_setupPage_OtherUsageModes: 'Offline modes',
+      calendarLogin_setupPage_InvalidFile: 'Bad ICS file! 😵',
+      calendarLogin_setupPage_LoginViaICSHeader: 'Calendar use',
+      calendarLogin_setupPage_WhereIsICSHelper: 'Dont know where you can find your neptun timetable (.ics file)?',
+      calendarLogin_setupPage_WhereIsICSHelperDescription: 'Go to "My data" > "Settings" > "Calendar export"\nIf you want accurate data, select exporting from september 1. (xxxx.09.01), to the next years september 1. (xxxx.09.01)! 🤓',
+      calendarLogin_setupPage_ImportICSFileHelpText: 'Click on the button, then select your freshly downloaded timetable file!',
+      calendarLogin_setupPage_ImportICSFileButton: 'Import'
+    )});
+
+    final downloadedSupportedLanguages = DataCache.getDownloadedSupportedLanguages();
+    final List<String> converted = DataCache.getDownloadedSupportedLanguagesData();
+    for(int i = 0; i < downloadedSupportedLanguages.length && i < converted.length; i++){
+      try {
+        LanguagePack.fromJson(downloadedSupportedLanguages[i], converted[i], (){});
+      } catch (_) {}
+    }
+
+    _hasInit = true;
+  }
+
+  static String popupLangPrev_Header = "ERROR";
+  static String popupLangPrev_Description = "ERROR";
+  static String popupLangPrev_Button = "ERROR";
+  static String popupLangPrev_ObtainingLang = "ERROR";
+  static String popupLangPrev_ObtainingLangError = "ERROR";
+
+  static void setupPopupPreviews(LanguagePack pack){
+    popupLangPrev_Header = pack.popup_case8_AcceptLanguageSuggestion;
+    popupLangPrev_Description = pack.popup_case8_AcceptLanguageSuggestionDescription;
+    popupLangPrev_Button = pack.popup_case8_ButtonAcceptLang;
+    popupLangPrev_ObtainingLang = pack.popup_case1_langSwap_DownloadingLang;
+    popupLangPrev_ObtainingLangError = pack.popup_case1_langSwap_DownloadingLangFail;
+  }
+
+  static LanguagePack getLanguagePack(){
+    return _getLangPack(_getCurrentLang());
+  }
+
+  static String _getCurrentLang(){
+    final selectedCode = DataCache.getUserSelectedLanguageCode();
+    if (selectedCode != null && selectedCode.isNotEmpty) {
+      return selectedCode;
+    }
+    final currLangId = DataCache.getUserSelectedLanguage();
+    final selectonList = _supportedLanguages + _downloadedSupportedLanguages;
+    if(currLangId == null || currLangId == -1 || currLangId >= selectonList.length || currLangId < 0){
+      return _defaultLocale;
+    }
+    return selectonList[currLangId];
+  }
+
+  static LanguagePack _getLangPack(String id){
+    final selectonList = Map<String, LanguagePack>.from(_languages);
+    selectonList.addAll(_downloadedLanguages);
+    if(!selectonList.containsKey(id)){
+      if (selectonList.containsKey(_supportedLanguages[1])) {
+        return selectonList[_supportedLanguages[1]]!; // default to english
+      }
+      return selectonList['hu']!;
+    }
+    return selectonList[id]!;
+  }
+
+  static String getStringWithParams(String base, List<dynamic> params){
+    String result = base;
+    for(int i = 0; i < params.length; i++){
+      result = result.replaceAll('%$i', params[i].toString());
+    }
+    return result;
+  }
+
+  static List<String> getAllLangFlags(){
+    return _supportedLanguagesFlags + _downloadedSupportedLanguagesFlags;
+  }
+
+  static List<String> getAllLangCodes(){
+    return _supportedLanguages + _downloadedSupportedLanguages;
+  }
+
+  static List<String> getAllDownloadedCodes(){
+    return _downloadedSupportedLanguages;
+  }
+
+  static List<String> getLanguageNamesWithFlag(){
+    final List<String> list = [];
+    final List<LangPackMap> langNames = Language.getAllLanguagesWithNative();
+    final obtainedList = _supportedLanguages + _downloadedSupportedLanguages;
+    for(var item in obtainedList){
+      for(var item2 in langNames){
+        if(item2.langId == item){
+          list.add("${item2.langFlag} ${item2.langName}");
+          break;
+        }
+      }
+    }
+    for(var item in langNames){
+      if(obtainedList.contains(item.langId)){
+        continue;
+      }
+      list.add("${item.langFlag} ${item.langName}");
+    }
+    return list;
+  }
+
+  static bool hasLanguageDownloaded(String id){
+    final list = _supportedLanguages + _downloadedSupportedLanguages;
+    return list.contains(id);
+  }
+
+  static void saveDownloadedLanguageData(){
+    DataCache.setDownloadedSupportedLanguages(_downloadedSupportedLanguages);
+    final List<String> converted = [];
+    for(var item in _downloadedLanguages.values){
+      converted.add(LanguagePack.toJson(item));
+    }
+    DataCache.setDownloadedSupportedLanguagesData(converted);
+  }
+
+  static Timer _loadDownloadLangTimer = Timer(Duration.zero, () {});
+
+  static Future<void> loadDownloadedLanguageData(BuildContext context)async{
+    final downloadedSupportedLanguages = DataCache.getDownloadedSupportedLanguages();
+    final List<String> converted = DataCache.getDownloadedSupportedLanguagesData();
+    for(int i = 0; i < downloadedSupportedLanguages.length; i++){
+      LanguagePack.fromJson(downloadedSupportedLanguages[i], converted[i], ()async{
+        if(!DataCache.getHasNetwork()){
+          return;
+        }
+        await Language.getLanguagePackById(await Language.getAllLanguages(), downloadedSupportedLanguages[i]);
+        _loadDownloadLangTimer.cancel();
+        _loadDownloadLangTimer = Timer(const Duration(seconds: 3), (){
+          saveDownloadedLanguageData();
+          Navigator.popUntil(context, (route) => route.willHandlePopInternally);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Splitter()),
+          );
+        });
+      });
+    }
+  }
+}
+
+class LanguagePack{
+  final String language_flag;
+
+  final String rootpage_setupPage_SelectLoginTypeHeader;
+  final String rootpage_setupPage_InstitutesSelection;
+  final String rootpage_setupPage_InstitutesSelectionDescription;
+  final String rootpage_setupPage_UrlLogin;
+  final String rootpage_setupPage_UrlLoginDescription;
+  final String rootpage_setupPage_AppProblemReporting;
+
+  final String rootpage_setupPage_OtherUsageModes;
+  final String rootpage_setupPage_IcsImport;
+  final String rootpage_setupPage_IcsImportDescription;
+
+  final String instituteSelection_setupPage_LoadingText;
+  final String instituteSelection_setupPage_NoNetwork;
+  final String instituteSelection_setupPage_SelectValidInstitute;
+  final String instituteSelection_setupPage_SelectInstitute;
+  final String instituteSelection_setupPage_Search;
+  final String instituteSelection_setupPage_SearchNotFound;
+  final String instituteSelection_setupPage_InstituteCantFindHelpText;
+  final String instituteSelection_setupPage_InstituteCantFindHelpTextDescription;
+
+  final String any_setupPage_GoBack;
+  final String any_setupPage_ProceedLogin;
+
+  final String urlLogin_setupPage_InvalidUrl;
+  final String urlLogin_setupPage_LoginViaURlHeader;
+  final String urlLogin_setupPage_InstituteNeptunUrl;
+  final String urlLogin_setupPage_InstituteNeptunUrlInvalid;
+  final String urlLogin_setupPage_WhereIsURLHelper;
+  final String urlLogin_setupPage_WhereIsURLHelperDescription;
+
+  final String calendarLogin_setupPage_InvalidFile;
+  final String calendarLogin_setupPage_LoginViaICSHeader;
+  final String calendarLogin_setupPage_WhereIsICSHelper;
+  final String calendarLogin_setupPage_WhereIsICSHelperDescription;
+  final String calendarLogin_setupPage_ImportICSFileHelpText;
+  final String calendarLogin_setupPage_ImportICSFileButton;
+
+  final String loginPage_setupPage_InvalidCredentials;
+  final String loginPage_setupPage_LoginHeaderText;
+  final String loginPage_setupPage_ActivityCacheInvalidHelper;
+  final String loginPage_setupPage_NeptunCode;
+  final String loginPage_setupPage_Password;
+  final String loginPage_setupPage_InvalidCredentialsEntered;
+  final String loginPage_setupPage_2faWarning;
+  final String loginPage_setupPage_2faWarningDescription;
+  final String loginPage_setupPage_LogInButton;
+  final String loginPage_setupPage_LoginInProgress;
+  final String loginPage_setupPage_LoginInProgressSlow;
+
+  final String api_monthJan_Universal;
+  final String api_monthFeb_Universal;
+  final String api_monthMar_Universal;
+  final String api_monthApr_Universal;
+  final String api_monthMay_Universal;
+  final String api_monthJun_Universal;
+  final String api_monthJul_Universal;
+  final String api_monthAug_Universal;
+  final String api_monthSep_Universal;
+  final String api_monthOkt_Universal;
+  final String api_monthNov_Universal;
+  final String api_monthDec_Universal;
+
+  final String api_dayMon_Universal;
+  final String api_dayTue_Universal;
+  final String api_dayWed_Universal;
+  final String api_dayThu_Universal;
+  final String api_dayFri_Universal;
+  final String api_daySat_Universal;
+  final String api_daySun_Universal;
+
+  final String api_loadingScreenHintFriendly1_Universal;
+  final String api_loadingScreenHintFriendly2_Universal;
+  final String api_loadingScreenHintFriendly3_Universal;
+  final String api_loadingScreenHintFriendly4_Universal;
+  final String api_loadingScreenHintFriendly5_Universal;
+  final String api_loadingScreenHintFriendly6_Universal;
+  final String api_loadingScreenHintFriendly7_Universal;
+
+  final String api_loadingScreenHint1_Universal;
+  final String api_loadingScreenHint2_Universal;
+  final String api_loadingScreenHint3_Universal;
+  final String api_loadingScreenHint4_Universal;
+  final String api_loadingScreenHint5_Universal;
+  final String api_loadingScreenHint6_Universal;
+  final String api_loadingScreenHint7_Universal;
+
+  final String api_loadingScreenHintFriendlyMini1_Universal;
+  final String api_loadingScreenHintFriendlyMini2_Universal;
+  final String api_loadingScreenHintFriendlyMini3_Universal;
+  final String api_loadingScreenHintFriendlyMini4_Universal;
+
+  final String api_loadingScreenHintMini1_Universal;
+  final String api_loadingScreenHintMini2_Universal;
+  final String api_loadingScreenHintMini3_Universal;
+
+  final String api_noData_Universal;
+
+  final String view_header_Calendar;
+  final String view_header_Subjects;
+  final String view_header_Payments;
+  final String view_header_Periods;
+  final String view_header_Messages;
+
+  final String topheader_calendar_greetMessage_1to6;
+  final String topheader_calendar_greetMessage_6to9;
+  final String topheader_calendar_greetMessage_9to13;
+  final String topheader_calendar_greetMessage_13to17;
+  final String topheader_calendar_greetMessage_17to21;
+  final String topheader_calendar_greetMessage_21to1;
+
+  final String topheader_subjects_CreditsInSemester;
+
+  final String topheader_payments_TotalMoneySpent;
+
+  final String topheader_periods_ActiveText;
+  final String topheader_periods_ExpiredText;
+  final String topheader_periods_FutureText;
+  final String topheader_periods_MainHeader;
+
+  final String topheader_messages_UnreadMessages;
+
+  final String topmenu_Greet;
+  final String topmenu_LoginPlace;
+  final String topmenu_buttons_Settings;
+  final String topmenu_buttons_SupportDev;
+  final String topmenu_buttons_Bugreport;
+  final String topmenu_buttons_Logout;
+  final String topmenu_buttons_LogoutSuccessToast;
+  final String topmenu_SemesterSelectorTitle;
+  final String topmenu_SemesterToast;
+  final String topmenu_AccountBalance;
+  final String topmenu_UnreadMessagesBadge;
+  final String topmenu_NoUnreadMessages;
+  final String topmenu_MessagesTitle;
+  final String topmenu_PaymentsTitle;
+
+  final String calendarPage_weekNav_StudyWeek;
+  final String calendarPage_weekNav_ClassesThisWeekFull;
+  final String calendarPage_weekNav_ClassesThisWeekOneDay;
+  final String calendarPage_weekNav_ClassesThisWeekLoading;
+  final String calendarPage_weekNav_ClassesThisWeekEmpty;
+  final String calendarPage_FreeDay;
+  final String calendarPage_weekNav_JumpToCurrentWeek;
+  final String calendar_status_online;
+  final String calendar_status_offline;
+  final String timetable_badge_overlapping;
+  final String timetable_badge_long_lesson;
+  final String timetable_break_title;
+  final String timetable_next_class_prefix;
+  final String popup_2fa_title;
+  final String popup_2fa_desc;
+  final String popup_2fa_cancel;
+
+  final String markbookPage_AverageDisplay;
+  final String markbookPage_AverageScholarshipDisplay;
+  final String markbookPage_NoGrades;
+  final String markbookPage_Empty;
+  final String markbookPage_CompletedLine;
+
+  final String paymentPage_Empty;
+  final String paymentPage_MoneyDisplay;
+  final String paymentPage_PaymentMissedTime;
+  final String paymentPage_PaymentDeadlineTime;
+
+  final String periodPage_Empty;
+  final String periodPage_Expired;
+  final String periodPage_Starts;
+  final String periodPage_ExpiredDays;
+  final String periodPage_StartDays;
+  final String periodPage_ActiveDays;
+
+  final String messagePage_SentBy;
+  final String messagePage_Empty;
+  final String messagePage_MarkAllAsRead;
+  final String messagePage_AllMarkedAsReadToast;
+
+  final String popup_case0_GhostGradeHeader;
+  final String popup_caseAll_OkButton;
+  final String popup_case0_SelectGrade;
+
+  final String popup_case1_SettingsHeader;
+  final String popup_case1_settingOption1_FamilyFriendlyLoadingText;
+  final String popup_case1_settingOption1_FamilyFriendlyLoadingTextDescription;
+  final String popup_case1_settingOption2_ExamNotifications;
+  final String popup_case1_settingOption2_ExamNotificationsDescription;
+  final String popup_case1_settingOption3_ClassNotifications;
+  final String popup_case1_settingOption3_ClassNotificationsDescription;
+  final String popup_case1_settingOption4_PaymentNotifications;
+  final String popup_case1_settingOption4_PaymentNotificationsDescription;
+  final String popup_case1_settingOption5_PeriodsNotifications;
+  final String popup_case1_settingOption5_PeriodsNotificationsDescription;
+  final String popup_case1_settingOption_MessageNotifications;
+  final String popup_case1_settingOption_MessageNotificationsDescription;
+  final String popup_case1_settingOption6_AppHaptics;
+  final String popup_case1_settingOption6_AppHapticsDescription;
+  final String popup_case1_settingOption7_WeekOffset;
+  final String popup_case1_settingOption7_WeekOffsetDescription;
+  final String popup_case1_settingOption7_WeekOffsetAuto;
+  final String popup_case1_settingBottomText_InstallOrigin;
+  final String popup_case1_settingBottomText_InstallOriginGPlay;
+  final String popup_case1_settingBottomText_InstallOrigin3rdParty;
+  final String popup_case1_settingOption8_LangaugeSelection;
+  final String popup_case1_settingOption8_LangaugeSelectionDescription;
+  final String popup_case1_settingOption9_ThemeSwap;
+  final String popup_case1_settingOption9_ThemeSwapDescription;
+
+  final String popup_case2_RateAppPopup;
+  final String popup_case2_RateAppPopupDescription;
+  final String popup_case2_RateButton;
+
+  final String popup_case3_MessagesHeader;
+  final String clickableText_OnCopy;
+
+  final String popup_case4_SubjectInfo;
+  final String popup_case4_TeachedBy;
+  final String popup_case4_5_SubjectCode;
+  final String popup_case4_5_SubjectLocation;
+  final String popup_case4_SubjectStartTime;
+
+  final String popup_case5_ExamInfo;
+  final String popup_case5_ExamStartTime;
+
+  final String popup_case6_AccountError;
+  final String popup_case6_AccountErrorDescription;
+  final String popup_case6_AccountErrorLogoutButton;
+
+  final String popup_case7_ObsolteAppVersion;
+  final String popup_case7_ObsolteAppVersionDescription;
+  final String popup_case7_ButtonUpdateNow;
+
+  final String popup_case8_AcceptLanguageSuggestion;
+  final String popup_case8_AcceptLanguageSuggestionDescription;
+  final String popup_case8_ButtonAcceptLang;
+
+  final String popup_case1_langSwap_DownloadingLang;
+  final String popup_case1_langSwap_DownloadingLangFail;
+  final String popup_case1_themeSwap_DownloadingThemeFail;
+
+  final String popup_caseDefault_InvalidPopupState;
+
+  final String topmenu_PetitionsTitle;
+  final String topmenu_DocumentsTitle;
+  final String topmenu_ProfileTitle;
+  final String petitions_Header;
+  final String petitions_TabAvailable;
+  final String petitions_TabSubmitted;
+  final String petitions_SearchHint;
+  final String petitions_NoAvailable;
+  final String petitions_NoSubmitted;
+  final String petitions_SubmitButton;
+  final String petitions_StepFill;
+  final String petitions_StepPreview;
+  final String petitions_SubmitSuccess;
+  final String petitions_SubmitConfirm;
+  final String petitions_Fee;
+  final String petitions_ValidUntil;
+  final String petitions_StatusAccepted;
+  final String petitions_StatusRejected;
+  final String petitions_StatusProcessing;
+  final String petitions_TabStarted;
+  final String petitions_NoStarted;
+  final String petitions_Continue;
+  final String petitions_Reset;
+  final String petitions_ResetConfirm;
+  final String petitions_ResetSuccess;
+  final String petitions_ExitOptionsTitle;
+  final String petitions_ExitKeepDraft;
+  final String petitions_ExitDiscard;
+
+  final String calendarFilter_Title;
+  final String calendarFilter_TO;
+  final String calendarFilter_TODesc;
+  final String calendarFilter_Periods;
+  final String calendarFilter_PeriodsDesc;
+  final String topbar_TOOn;
+  final String topbar_TOOff;
+  final String profile_TabDetails;
+  final String profile_TabSettings;
+  final String profile_Header;
+  final String profile_Subheader;
+  final String documents_Header;
+  final String documents_Subheader;
+  final String documents_TabOfficial;
+  final String documents_TabSubmitted;
+  final String documents_TabTr;
+
+  const LanguagePack({
+    required this.language_flag,
+    required this.rootpage_setupPage_SelectLoginTypeHeader,
+    required this.rootpage_setupPage_InstitutesSelection,
+    required this.rootpage_setupPage_InstitutesSelectionDescription,
+    required this.rootpage_setupPage_UrlLogin,
+    required this.rootpage_setupPage_UrlLoginDescription,
+    required this.rootpage_setupPage_AppProblemReporting,
+    required this.instituteSelection_setupPage_LoadingText,
+    required this.instituteSelection_setupPage_NoNetwork,
+    required this.instituteSelection_setupPage_SelectValidInstitute,
+    required this.instituteSelection_setupPage_SelectInstitute,
+    required this.instituteSelection_setupPage_Search,
+    required this.instituteSelection_setupPage_SearchNotFound,
+    required this.instituteSelection_setupPage_InstituteCantFindHelpText,
+    required this.instituteSelection_setupPage_InstituteCantFindHelpTextDescription,
+    required this.any_setupPage_GoBack,
+    required this.any_setupPage_ProceedLogin,
+    required this.urlLogin_setupPage_InvalidUrl,
+    required this.urlLogin_setupPage_LoginViaURlHeader,
+    required this.urlLogin_setupPage_InstituteNeptunUrl,
+    required this.urlLogin_setupPage_InstituteNeptunUrlInvalid,
+    required this.urlLogin_setupPage_WhereIsURLHelper,
+    required this.urlLogin_setupPage_WhereIsURLHelperDescription,
+    required this.loginPage_setupPage_InvalidCredentials,
+    required this.loginPage_setupPage_LoginHeaderText,
+    required this.loginPage_setupPage_ActivityCacheInvalidHelper,
+    required this.loginPage_setupPage_NeptunCode,
+    required this.loginPage_setupPage_Password,
+    required this.loginPage_setupPage_InvalidCredentialsEntered,
+    required this.loginPage_setupPage_2faWarning,
+    required this.loginPage_setupPage_2faWarningDescription,
+    required this.loginPage_setupPage_LogInButton,
+    required this.loginPage_setupPage_LoginInProgress,
+    required this.loginPage_setupPage_LoginInProgressSlow,
+    required this.api_monthJan_Universal,
+    required this.api_monthFeb_Universal,
+    required this.api_monthMar_Universal,
+    required this.api_monthApr_Universal,
+    required this.api_monthJun_Universal,
+    required this.api_monthMay_Universal,
+    required this.api_monthJul_Universal,
+    required this.api_monthAug_Universal,
+    required this.api_monthSep_Universal,
+    required this.api_monthOkt_Universal,
+    required this.api_monthNov_Universal,
+    required this.api_monthDec_Universal,
+    required this.api_dayMon_Universal,
+    required this.api_dayTue_Universal,
+    required this.api_dayWed_Universal,
+    required this.api_dayThu_Universal,
+    required this.api_dayFri_Universal,
+    required this.api_daySat_Universal,
+    required this.api_daySun_Universal,
+    required this.api_loadingScreenHintFriendly1_Universal,
+    required this.api_loadingScreenHintFriendly2_Universal,
+    required this.api_loadingScreenHintFriendly3_Universal,
+    required this.api_loadingScreenHintFriendly4_Universal,
+    required this.api_loadingScreenHintFriendly5_Universal,
+    required this.api_loadingScreenHintFriendly6_Universal,
+    required this.api_loadingScreenHintFriendly7_Universal,
+    required this.api_loadingScreenHint1_Universal,
+    required this.api_loadingScreenHint2_Universal,
+    required this.api_loadingScreenHint3_Universal,
+    required this.api_loadingScreenHint4_Universal,
+    required this.api_loadingScreenHint5_Universal,
+    required this.api_loadingScreenHint6_Universal,
+    required this.api_loadingScreenHint7_Universal,
+    required this.api_loadingScreenHintFriendlyMini1_Universal,
+    required this.api_loadingScreenHintFriendlyMini2_Universal,
+    required this.api_loadingScreenHintFriendlyMini3_Universal,
+    required this.api_loadingScreenHintFriendlyMini4_Universal,
+    required this.api_loadingScreenHintMini1_Universal,
+    required this.api_loadingScreenHintMini2_Universal,
+    required this.api_loadingScreenHintMini3_Universal,
+    required this.api_noData_Universal,
+    required this.view_header_Calendar,
+    required this.view_header_Messages,
+    required this.view_header_Payments,
+    required this.view_header_Periods,
+    required this.view_header_Subjects,
+    required this.topheader_calendar_greetMessage_1to6,
+    required this.topheader_calendar_greetMessage_6to9,
+    required this.topheader_calendar_greetMessage_9to13,
+    required this.topheader_calendar_greetMessage_13to17,
+    required this.topheader_calendar_greetMessage_17to21,
+    required this.topheader_calendar_greetMessage_21to1,
+    required this.topheader_subjects_CreditsInSemester,
+    required this.topheader_payments_TotalMoneySpent,
+    required this.topheader_periods_ActiveText,
+    required this.topheader_periods_ExpiredText,
+    required this.topheader_periods_FutureText,
+    required this.topheader_periods_MainHeader,
+    required this.topheader_messages_UnreadMessages,
+    required this.topmenu_buttons_Bugreport,
+    required this.topmenu_buttons_Logout,
+    required this.topmenu_buttons_Settings,
+    required this.topmenu_buttons_SupportDev,
+    required this.topmenu_Greet,
+    required this.topmenu_LoginPlace,
+    required this.topmenu_buttons_LogoutSuccessToast,
+    required this.calendarPage_FreeDay,
+    required this.calendarPage_weekNav_ClassesThisWeekFull,
+    required this.calendarPage_weekNav_ClassesThisWeekOneDay,
+    required this.calendarPage_weekNav_StudyWeek,
+    required this.calendarPage_weekNav_JumpToCurrentWeek,
+    required this.calendar_status_online,
+    required this.calendar_status_offline,
+    required this.timetable_badge_overlapping,
+    required this.timetable_badge_long_lesson,
+    required this.timetable_break_title,
+    required this.timetable_next_class_prefix,
+    required this.popup_2fa_title,
+    required this.popup_2fa_desc,
+    required this.popup_2fa_cancel,
+    required this.calendarPage_weekNav_ClassesThisWeekEmpty,
+    required this.calendarPage_weekNav_ClassesThisWeekLoading,
+    required this.markbookPage_AverageDisplay,
+    required this.markbookPage_AverageScholarshipDisplay,
+    required this.markbookPage_NoGrades,
+    required this.markbookPage_Empty,
+    required this.markbookPage_CompletedLine,
+    required this.paymentPage_Empty,
+    required this.paymentPage_MoneyDisplay,
+    required this.paymentPage_PaymentDeadlineTime,
+    required this.paymentPage_PaymentMissedTime,
+    required this.periodPage_ActiveDays,
+    required this.periodPage_Empty,
+    required this.periodPage_Expired,
+    required this.periodPage_ExpiredDays,
+    required this.periodPage_StartDays,
+    required this.periodPage_Starts,
+    required this.messagePage_SentBy,
+    required this.messagePage_Empty,
+    required this.messagePage_MarkAllAsRead,
+    required this.messagePage_AllMarkedAsReadToast,
+    required this.popup_case0_GhostGradeHeader,
+    required this.popup_case0_SelectGrade,
+    required this.popup_caseAll_OkButton,
+    required this.popup_case1_settingBottomText_InstallOrigin,
+    required this.popup_case1_settingBottomText_InstallOrigin3rdParty,
+    required this.popup_case1_settingBottomText_InstallOriginGPlay,
+    required this.popup_case1_settingOption1_FamilyFriendlyLoadingText,
+    required this.popup_case1_settingOption1_FamilyFriendlyLoadingTextDescription,
+    required this.popup_case1_settingOption2_ExamNotifications,
+    required this.popup_case1_settingOption2_ExamNotificationsDescription,
+    required this.popup_case1_settingOption3_ClassNotifications,
+    required this.popup_case1_settingOption3_ClassNotificationsDescription,
+    required this.popup_case1_settingOption4_PaymentNotifications,
+    required this.popup_case1_settingOption4_PaymentNotificationsDescription,
+    required this.popup_case1_settingOption5_PeriodsNotifications,
+    required this.popup_case1_settingOption5_PeriodsNotificationsDescription,
+    required this.popup_case1_settingOption_MessageNotifications,
+    required this.popup_case1_settingOption_MessageNotificationsDescription,
+    required this.popup_case1_settingOption6_AppHaptics,
+    required this.popup_case1_settingOption6_AppHapticsDescription,
+    required this.popup_case1_settingOption7_WeekOffset,
+    required this.popup_case1_settingOption7_WeekOffsetDescription,
+    required this.popup_case1_settingOption7_WeekOffsetAuto,
+    required this.popup_case1_SettingsHeader,
+    required this.popup_case2_RateAppPopup,
+    required this.popup_case2_RateAppPopupDescription,
+    required this.popup_case2_RateButton,
+    required this.popup_case3_MessagesHeader,
+    required this.clickableText_OnCopy,
+    required this.popup_case4_5_SubjectCode,
+    required this.popup_case4_5_SubjectLocation,
+    required this.popup_case4_SubjectStartTime,
+    required this.popup_case4_SubjectInfo,
+    required this.popup_case4_TeachedBy,
+    required this.popup_case5_ExamInfo,
+    required this.popup_case5_ExamStartTime,
+    required this.popup_case6_AccountError,
+    required this.popup_case6_AccountErrorDescription,
+    required this.popup_case6_AccountErrorLogoutButton,
+    required this.popup_case1_settingOption8_LangaugeSelection,
+    required this.popup_case1_settingOption8_LangaugeSelectionDescription,
+    required this.popup_case7_ButtonUpdateNow,
+    required this.popup_case7_ObsolteAppVersion,
+    required this.popup_case7_ObsolteAppVersionDescription,
+    required this.popup_caseDefault_InvalidPopupState,
+    required this.popup_case8_AcceptLanguageSuggestion,
+    required this.popup_case8_AcceptLanguageSuggestionDescription,
+    required this.popup_case8_ButtonAcceptLang,
+    required this.popup_case1_langSwap_DownloadingLang,
+    required this.popup_case1_langSwap_DownloadingLangFail,
+    required this.popup_case1_settingOption9_ThemeSwap,
+    required this.popup_case1_settingOption9_ThemeSwapDescription,
+    required this.popup_case1_themeSwap_DownloadingThemeFail,
+
+    required this.rootpage_setupPage_IcsImport,
+    required this.rootpage_setupPage_IcsImportDescription,
+    required this.rootpage_setupPage_OtherUsageModes,
+    required this.calendarLogin_setupPage_InvalidFile,
+    required this.calendarLogin_setupPage_LoginViaICSHeader,
+    required this.calendarLogin_setupPage_WhereIsICSHelper,
+    required this.calendarLogin_setupPage_WhereIsICSHelperDescription,
+    required this.calendarLogin_setupPage_ImportICSFileHelpText,
+    required this.calendarLogin_setupPage_ImportICSFileButton,
+    this.topmenu_SemesterSelectorTitle = 'Félév',
+    this.topmenu_SemesterToast = 'Félév átváltva: %0',
+    this.topmenu_AccountBalance = 'Gyűjtőszámla egyenleg',
+    this.topmenu_UnreadMessagesBadge = '%0 új üzenet',
+    this.topmenu_NoUnreadMessages = 'Nincs új üzenet',
+    this.topmenu_MessagesTitle = 'Üzenetek',
+    this.topmenu_PaymentsTitle = 'Pénzügyek',
+    this.topmenu_PetitionsTitle = 'Kérvények',
+    this.topmenu_DocumentsTitle = 'Dokumentumtár',
+    this.topmenu_ProfileTitle = 'Személyes Adatok & Beállítások',
+    this.petitions_Header = 'Kérvénykezelés',
+    this.petitions_TabAvailable = 'Leadható kérvények',
+    this.petitions_TabSubmitted = 'Leadott kérvények',
+    this.petitions_SearchHint = 'Kérvény keresése...',
+    this.petitions_NoAvailable = 'Nincs leadható kérvény',
+    this.petitions_NoSubmitted = 'Nincs leadott kérvény',
+    this.petitions_SubmitButton = 'Kérvény leadása',
+    this.petitions_StepFill = 'Adatok megadása',
+    this.petitions_StepPreview = 'Nyomtatási előnézet',
+    this.petitions_SubmitSuccess = 'A kérvény sikeresen leadva!',
+    this.petitions_SubmitConfirm = 'Biztosan be szeretnéd nyújtani a kérvényt?',
+    this.petitions_Fee = 'Díj',
+    this.petitions_ValidUntil = 'Érvényesség',
+    this.petitions_StatusAccepted = 'Elfogadva',
+    this.petitions_StatusRejected = 'Elutasítva',
+    this.petitions_StatusProcessing = 'Feldolgozás alatt',
+    this.petitions_TabStarted = 'Megkezdett',
+    this.petitions_NoStarted = 'Nincs megkezdett kérvény',
+    this.petitions_Continue = 'Folytatás',
+    this.petitions_Reset = 'Visszaállítás',
+    this.petitions_ResetConfirm = 'Biztosan elveted a megkezdett kérvényt? A kitöltött adatok elvesznek, és a kérvény visszakerül a leadható kérvények közé.',
+    this.petitions_ResetSuccess = 'A kérvény piszkozata sikeresen törölve!',
+    this.petitions_ExitOptionsTitle = 'Kilépés a kérvényből',
+    this.petitions_ExitKeepDraft = 'Mentés piszkozatként és kilépés',
+    this.petitions_ExitDiscard = 'Kilépés mentés nélkül (visszaállítás)',
+    this.calendarFilter_Title = 'Órarendi Beállítások',
+    this.calendarFilter_TO = 'Tanulmányi Iroda (TO) sáv',
+    this.calendarFilter_TODesc = 'Félfogadási idők és helyszínek jelzése a naptárban',
+    this.calendarFilter_Periods = 'Időszakok jelzése az órarendben',
+    this.calendarFilter_PeriodsDesc = 'Aktuális féléves időszakok megjelenítése',
+    this.topbar_TOOn = 'TO Be',
+    this.topbar_TOOff = 'TO Ki',
+    this.profile_TabDetails = 'Adatlap',
+    this.profile_TabSettings = 'Beállítások',
+    this.profile_Header = 'Személyes Adatok & Beállítások',
+    this.profile_Subheader = 'Hallgatói törzsadatlap és biztonság',
+    this.documents_Header = 'Dokumentumtár',
+    this.documents_Subheader = 'Hivatalos határozatok, igazolások és iratok',
+    this.documents_TabOfficial = 'Hivatalos',
+    this.documents_TabSubmitted = 'Benyújtott',
+    this.documents_TabTr = 'TR iratok'
+  });
+
+  static LanguagePack fromJson(String countryId, String json, VoidCallback onLanguageOutdated){
+    LanguagePack? decodedLangPack;
+    if(AppStrings._downloadedSupportedLanguages.contains(countryId)){
+      // overwrite
+      final duplicateIdx = AppStrings._downloadedSupportedLanguages.indexOf(countryId);
+      AppStrings._downloadedSupportedLanguages.removeAt(duplicateIdx);
+      AppStrings._downloadedSupportedLanguagesFlags.removeAt(duplicateIdx);
+      AppStrings._downloadedLanguages.remove(countryId);
+    }
+    try{
+      final dynamic decodedRaw = conv.json.decode(json);
+      final Map<String, dynamic> lang = decodedRaw is Map<String, dynamic> ? decodedRaw : Map<String, dynamic>.from(decodedRaw as Map);
+      final en = AppStrings._languages['en'] ?? AppStrings._languages['hu']!;
+
+      String getStr(String key, String fallback) {
+        final val = lang[key];
+        if (val != null && val.toString().trim().isNotEmpty) {
+          return val.toString();
+        }
+        return fallback;
+      }
+
+      decodedLangPack = LanguagePack(
+        language_flag: getStr('language_flag', '🌐'),
+        rootpage_setupPage_SelectLoginTypeHeader: getStr('rootpage_setupPage_SelectLoginTypeHeader', en.rootpage_setupPage_SelectLoginTypeHeader),
+        rootpage_setupPage_InstitutesSelection: getStr('rootpage_setupPage_InstitutesSelection', en.rootpage_setupPage_InstitutesSelection),
+        rootpage_setupPage_InstitutesSelectionDescription: getStr('rootpage_setupPage_InstitutesSelectionDescription', en.rootpage_setupPage_InstitutesSelectionDescription),
+        rootpage_setupPage_UrlLogin: getStr('rootpage_setupPage_UrlLogin', en.rootpage_setupPage_UrlLogin),
+        rootpage_setupPage_UrlLoginDescription: getStr('rootpage_setupPage_UrlLoginDescription', en.rootpage_setupPage_UrlLoginDescription),
+        rootpage_setupPage_AppProblemReporting: getStr('rootpage_setupPage_AppProblemReporting', en.rootpage_setupPage_AppProblemReporting),
+        instituteSelection_setupPage_LoadingText: getStr('instituteSelection_setupPage_LoadingText', en.instituteSelection_setupPage_LoadingText),
+        instituteSelection_setupPage_NoNetwork: getStr('instituteSelection_setupPage_NoNetwork', en.instituteSelection_setupPage_NoNetwork),
+        instituteSelection_setupPage_SelectValidInstitute: getStr('instituteSelection_setupPage_SelectValidInstitute', en.instituteSelection_setupPage_SelectValidInstitute),
+        instituteSelection_setupPage_SelectInstitute: getStr('instituteSelection_setupPage_SelectInstitute', en.instituteSelection_setupPage_SelectInstitute),
+        instituteSelection_setupPage_Search: getStr('instituteSelection_setupPage_Search', en.instituteSelection_setupPage_Search),
+        instituteSelection_setupPage_SearchNotFound: getStr('instituteSelection_setupPage_SearchNotFound', en.instituteSelection_setupPage_SearchNotFound),
+        instituteSelection_setupPage_InstituteCantFindHelpText: getStr('instituteSelection_setupPage_InstituteCantFindHelpText', en.instituteSelection_setupPage_InstituteCantFindHelpText),
+        instituteSelection_setupPage_InstituteCantFindHelpTextDescription: getStr('instituteSelection_setupPage_InstituteCantFindHelpTextDescription', en.instituteSelection_setupPage_InstituteCantFindHelpTextDescription),
+        any_setupPage_GoBack: getStr('any_setupPage_GoBack', en.any_setupPage_GoBack),
+        any_setupPage_ProceedLogin: getStr('any_setupPage_ProceedLogin', en.any_setupPage_ProceedLogin),
+        urlLogin_setupPage_InvalidUrl: getStr('urlLogin_setupPage_InvalidUrl', en.urlLogin_setupPage_InvalidUrl),
+        urlLogin_setupPage_LoginViaURlHeader: getStr('urlLogin_setupPage_LoginViaURlHeader', en.urlLogin_setupPage_LoginViaURlHeader),
+        urlLogin_setupPage_InstituteNeptunUrl: getStr('urlLogin_setupPage_InstituteNeptunUrl', en.urlLogin_setupPage_InstituteNeptunUrl),
+        urlLogin_setupPage_InstituteNeptunUrlInvalid: getStr('urlLogin_setupPage_InstituteNeptunUrlInvalid', en.urlLogin_setupPage_InstituteNeptunUrlInvalid),
+        urlLogin_setupPage_WhereIsURLHelper: getStr('urlLogin_setupPage_WhereIsURLHelper', en.urlLogin_setupPage_WhereIsURLHelper),
+        urlLogin_setupPage_WhereIsURLHelperDescription: getStr('urlLogin_setupPage_WhereIsURLHelperDescription', en.urlLogin_setupPage_WhereIsURLHelperDescription),
+        loginPage_setupPage_InvalidCredentials: getStr('loginPage_setupPage_InvalidCredentials', en.loginPage_setupPage_InvalidCredentials),
+        loginPage_setupPage_LoginHeaderText: getStr('loginPage_setupPage_LoginHeaderText', en.loginPage_setupPage_LoginHeaderText),
+        loginPage_setupPage_ActivityCacheInvalidHelper: getStr('loginPage_setupPage_ActivityCacheInvalidHelper', en.loginPage_setupPage_ActivityCacheInvalidHelper),
+        loginPage_setupPage_NeptunCode: getStr('loginPage_setupPage_NeptunCode', en.loginPage_setupPage_NeptunCode),
+        loginPage_setupPage_Password: getStr('loginPage_setupPage_Password', en.loginPage_setupPage_Password),
+        loginPage_setupPage_InvalidCredentialsEntered: getStr('loginPage_setupPage_InvalidCredentialsEntered', en.loginPage_setupPage_InvalidCredentialsEntered),
+        loginPage_setupPage_2faWarning: getStr('loginPage_setupPage_2faWarning', en.loginPage_setupPage_2faWarning),
+        loginPage_setupPage_2faWarningDescription: getStr('loginPage_setupPage_2faWarningDescription', en.loginPage_setupPage_2faWarningDescription),
+        loginPage_setupPage_LogInButton: getStr('loginPage_setupPage_LogInButton', en.loginPage_setupPage_LogInButton),
+        loginPage_setupPage_LoginInProgress: getStr('loginPage_setupPage_LoginInProgress', en.loginPage_setupPage_LoginInProgress),
+        loginPage_setupPage_LoginInProgressSlow: getStr('loginPage_setupPage_LoginInProgressSlow', en.loginPage_setupPage_LoginInProgressSlow),
+        api_monthJan_Universal: getStr('api_monthJan_Universal', en.api_monthJan_Universal),
+        api_monthFeb_Universal: getStr('api_monthFeb_Universal', en.api_monthFeb_Universal),
+        api_monthMar_Universal: getStr('api_monthMar_Universal', en.api_monthMar_Universal),
+        api_monthApr_Universal: getStr('api_monthApr_Universal', en.api_monthApr_Universal),
+        api_monthJun_Universal: getStr('api_monthJun_Universal', en.api_monthJun_Universal),
+        api_monthMay_Universal: getStr('api_monthMay_Universal', en.api_monthMay_Universal),
+        api_monthJul_Universal: getStr('api_monthJul_Universal', en.api_monthJul_Universal),
+        api_monthAug_Universal: getStr('api_monthAug_Universal', en.api_monthAug_Universal),
+        api_monthSep_Universal: getStr('api_monthSep_Universal', en.api_monthSep_Universal),
+        api_monthOkt_Universal: getStr('api_monthOkt_Universal', en.api_monthOkt_Universal),
+        api_monthNov_Universal: getStr('api_monthNov_Universal', en.api_monthNov_Universal),
+        api_monthDec_Universal: getStr('api_monthDec_Universal', en.api_monthDec_Universal),
+        api_dayMon_Universal: getStr('api_dayMon_Universal', en.api_dayMon_Universal),
+        api_dayTue_Universal: getStr('api_dayTue_Universal', en.api_dayTue_Universal),
+        api_dayWed_Universal: getStr('api_dayWed_Universal', en.api_dayWed_Universal),
+        api_dayThu_Universal: getStr('api_dayThu_Universal', en.api_dayThu_Universal),
+        api_dayFri_Universal: getStr('api_dayFri_Universal', en.api_dayFri_Universal),
+        api_daySat_Universal: getStr('api_daySat_Universal', en.api_daySat_Universal),
+        api_daySun_Universal: getStr('api_daySun_Universal', en.api_daySun_Universal),
+        api_loadingScreenHintFriendly1_Universal: getStr('api_loadingScreenHintFriendly1_Universal', en.api_loadingScreenHintFriendly1_Universal),
+        api_loadingScreenHintFriendly2_Universal: getStr('api_loadingScreenHintFriendly2_Universal', en.api_loadingScreenHintFriendly2_Universal),
+        api_loadingScreenHintFriendly3_Universal: getStr('api_loadingScreenHintFriendly3_Universal', en.api_loadingScreenHintFriendly3_Universal),
+        api_loadingScreenHintFriendly4_Universal: getStr('api_loadingScreenHintFriendly4_Universal', en.api_loadingScreenHintFriendly4_Universal),
+        api_loadingScreenHintFriendly5_Universal: getStr('api_loadingScreenHintFriendly5_Universal', en.api_loadingScreenHintFriendly5_Universal),
+        api_loadingScreenHintFriendly6_Universal: getStr('api_loadingScreenHintFriendly6_Universal', en.api_loadingScreenHintFriendly6_Universal),
+        api_loadingScreenHintFriendly7_Universal: getStr('api_loadingScreenHintFriendly7_Universal', en.api_loadingScreenHintFriendly7_Universal),
+        api_loadingScreenHint1_Universal: getStr('api_loadingScreenHint1_Universal', en.api_loadingScreenHint1_Universal),
+        api_loadingScreenHint2_Universal: getStr('api_loadingScreenHint2_Universal', en.api_loadingScreenHint2_Universal),
+        api_loadingScreenHint3_Universal: getStr('api_loadingScreenHint3_Universal', en.api_loadingScreenHint3_Universal),
+        api_loadingScreenHint4_Universal: getStr('api_loadingScreenHint4_Universal', en.api_loadingScreenHint4_Universal),
+        api_loadingScreenHint5_Universal: getStr('api_loadingScreenHint5_Universal', en.api_loadingScreenHint5_Universal),
+        api_loadingScreenHint6_Universal: getStr('api_loadingScreenHint6_Universal', en.api_loadingScreenHint6_Universal),
+        api_loadingScreenHint7_Universal: getStr('api_loadingScreenHint7_Universal', en.api_loadingScreenHint7_Universal),
+        api_loadingScreenHintFriendlyMini1_Universal: getStr('api_loadingScreenHintFriendlyMini1_Universal', en.api_loadingScreenHintFriendlyMini1_Universal),
+        api_loadingScreenHintFriendlyMini2_Universal: getStr('api_loadingScreenHintFriendlyMini2_Universal', en.api_loadingScreenHintFriendlyMini2_Universal),
+        api_loadingScreenHintFriendlyMini3_Universal: getStr('api_loadingScreenHintFriendlyMini3_Universal', en.api_loadingScreenHintFriendlyMini3_Universal),
+        api_loadingScreenHintFriendlyMini4_Universal: getStr('api_loadingScreenHintFriendlyMini4_Universal', en.api_loadingScreenHintFriendlyMini4_Universal),
+        api_loadingScreenHintMini1_Universal: getStr('api_loadingScreenHintMini1_Universal', en.api_loadingScreenHintMini1_Universal),
+        api_loadingScreenHintMini2_Universal: getStr('api_loadingScreenHintMini2_Universal', en.api_loadingScreenHintMini2_Universal),
+        api_loadingScreenHintMini3_Universal: getStr('api_loadingScreenHintMini3_Universal', en.api_loadingScreenHintMini3_Universal),
+        api_noData_Universal: getStr('api_noData_Universal', en.api_noData_Universal),
+        view_header_Calendar: getStr('view_header_Calendar', en.view_header_Calendar),
+        view_header_Messages: getStr('view_header_Messages', en.view_header_Messages),
+        view_header_Payments: getStr('view_header_Payments', en.view_header_Payments),
+        view_header_Periods: getStr('view_header_Periods', en.view_header_Periods),
+        view_header_Subjects: getStr('view_header_Subjects', en.view_header_Subjects),
+        topheader_calendar_greetMessage_1to6: getStr('topheader_calendar_greetMessage_1to6', en.topheader_calendar_greetMessage_1to6),
+        topheader_calendar_greetMessage_6to9: getStr('topheader_calendar_greetMessage_6to9', en.topheader_calendar_greetMessage_6to9),
+        topheader_calendar_greetMessage_9to13: getStr('topheader_calendar_greetMessage_9to13', en.topheader_calendar_greetMessage_9to13),
+        topheader_calendar_greetMessage_13to17: getStr('topheader_calendar_greetMessage_13to17', en.topheader_calendar_greetMessage_13to17),
+        topheader_calendar_greetMessage_17to21: getStr('topheader_calendar_greetMessage_17to21', en.topheader_calendar_greetMessage_17to21),
+        topheader_calendar_greetMessage_21to1: getStr('topheader_calendar_greetMessage_21to1', en.topheader_calendar_greetMessage_21to1),
+        topheader_subjects_CreditsInSemester: getStr('topheader_subjects_CreditsInSemester', en.topheader_subjects_CreditsInSemester),
+        topheader_payments_TotalMoneySpent: getStr('topheader_payments_TotalMoneySpent', en.topheader_payments_TotalMoneySpent),
+        topheader_periods_ActiveText: getStr('topheader_periods_ActiveText', en.topheader_periods_ActiveText),
+        topheader_periods_ExpiredText: getStr('topheader_periods_ExpiredText', en.topheader_periods_ExpiredText),
+        topheader_periods_FutureText: getStr('topheader_periods_FutureText', en.topheader_periods_FutureText),
+        topheader_periods_MainHeader: getStr('topheader_periods_MainHeader', en.topheader_periods_MainHeader),
+        topheader_messages_UnreadMessages: getStr('topheader_messages_UnreadMessages', en.topheader_messages_UnreadMessages),
+        topmenu_buttons_Bugreport: getStr('topmenu_buttons_Bugreport', en.topmenu_buttons_Bugreport),
+        topmenu_buttons_Logout: getStr('topmenu_buttons_Logout', en.topmenu_buttons_Logout),
+        topmenu_buttons_Settings: getStr('topmenu_buttons_Settings', en.topmenu_buttons_Settings),
+        topmenu_buttons_SupportDev: getStr('topmenu_buttons_SupportDev', en.topmenu_buttons_SupportDev),
+        topmenu_Greet: getStr('topmenu_Greet', en.topmenu_Greet),
+        topmenu_LoginPlace: getStr('topmenu_LoginPlace', en.topmenu_LoginPlace),
+        topmenu_buttons_LogoutSuccessToast: getStr('topmenu_buttons_LogoutSuccessToast', en.topmenu_buttons_LogoutSuccessToast),
+        calendarPage_FreeDay: getStr('calendarPage_FreeDay', en.calendarPage_FreeDay),
+        calendarPage_weekNav_ClassesThisWeekFull: getStr('calendarPage_weekNav_ClassesThisWeekFull', en.calendarPage_weekNav_ClassesThisWeekFull),
+        calendarPage_weekNav_ClassesThisWeekOneDay: getStr('calendarPage_weekNav_ClassesThisWeekOneDay', en.calendarPage_weekNav_ClassesThisWeekOneDay),
+        calendarPage_weekNav_StudyWeek: getStr('calendarPage_weekNav_StudyWeek', en.calendarPage_weekNav_StudyWeek),
+        calendarPage_weekNav_JumpToCurrentWeek: getStr('calendarPage_weekNav_JumpToCurrentWeek', en.calendarPage_weekNav_JumpToCurrentWeek),
+        calendar_status_online: getStr('calendar_status_online', en.calendar_status_online),
+        calendar_status_offline: getStr('calendar_status_offline', en.calendar_status_offline),
+        timetable_badge_overlapping: getStr('timetable_badge_overlapping', en.timetable_badge_overlapping),
+        timetable_badge_long_lesson: getStr('timetable_badge_long_lesson', en.timetable_badge_long_lesson),
+        timetable_break_title: getStr('timetable_break_title', en.timetable_break_title),
+        timetable_next_class_prefix: getStr('timetable_next_class_prefix', en.timetable_next_class_prefix),
+        popup_2fa_title: getStr('popup_2fa_title', en.popup_2fa_title),
+        popup_2fa_desc: getStr('popup_2fa_desc', en.popup_2fa_desc),
+        popup_2fa_cancel: getStr('popup_2fa_cancel', en.popup_2fa_cancel),
+        calendarPage_weekNav_ClassesThisWeekEmpty: getStr('calendarPage_weekNav_ClassesThisWeekEmpty', en.calendarPage_weekNav_ClassesThisWeekEmpty),
+        calendarPage_weekNav_ClassesThisWeekLoading: getStr('calendarPage_weekNav_ClassesThisWeekLoading', en.calendarPage_weekNav_ClassesThisWeekLoading),
+        markbookPage_AverageDisplay: getStr('markbookPage_AverageDisplay', en.markbookPage_AverageDisplay),
+        markbookPage_AverageScholarshipDisplay: getStr('markbookPage_AverageScholarshipDisplay', en.markbookPage_AverageScholarshipDisplay),
+        markbookPage_NoGrades: getStr('markbookPage_NoGrades', en.markbookPage_NoGrades),
+        markbookPage_Empty: getStr('markbookPage_Empty', en.markbookPage_Empty),
+        markbookPage_CompletedLine: getStr('markbookPage_CompletedLine', en.markbookPage_CompletedLine),
+        paymentPage_Empty: getStr('paymentPage_Empty', en.paymentPage_Empty),
+        paymentPage_MoneyDisplay: getStr('paymentPage_MoneyDisplay', en.paymentPage_MoneyDisplay),
+        paymentPage_PaymentDeadlineTime: getStr('paymentPage_PaymentDeadlineTime', en.paymentPage_PaymentDeadlineTime),
+        paymentPage_PaymentMissedTime: getStr('paymentPage_PaymentMissedTime', en.paymentPage_PaymentMissedTime),
+        periodPage_ActiveDays: getStr('periodPage_ActiveDays', en.periodPage_ActiveDays),
+        periodPage_Empty: getStr('periodPage_Empty', en.periodPage_Empty),
+        periodPage_Expired: getStr('periodPage_Expired', en.periodPage_Expired),
+        periodPage_ExpiredDays: getStr('periodPage_ExpiredDays', en.periodPage_ExpiredDays),
+        periodPage_StartDays: getStr('periodPage_StartDays', en.periodPage_StartDays),
+        periodPage_Starts: getStr('periodPage_Starts', en.periodPage_Starts),
+        messagePage_SentBy: getStr('messagePage_SentBy', en.messagePage_SentBy),
+        messagePage_Empty: getStr('messagePage_Empty', en.messagePage_Empty),
+        messagePage_MarkAllAsRead: getStr('messagePage_MarkAllAsRead', en.messagePage_MarkAllAsRead),
+        messagePage_AllMarkedAsReadToast: getStr('messagePage_AllMarkedAsReadToast', en.messagePage_AllMarkedAsReadToast),
+        popup_case0_GhostGradeHeader: getStr('popup_case0_GhostGradeHeader', en.popup_case0_GhostGradeHeader),
+        popup_case0_SelectGrade: getStr('popup_case0_SelectGrade', en.popup_case0_SelectGrade),
+        popup_caseAll_OkButton: getStr('popup_caseAll_OkButton', en.popup_caseAll_OkButton),
+        popup_case1_settingBottomText_InstallOrigin: getStr('popup_case1_settingBottomText_InstallOrigin', en.popup_case1_settingBottomText_InstallOrigin),
+        popup_case1_settingBottomText_InstallOrigin3rdParty: getStr('popup_case1_settingBottomText_InstallOrigin3rdParty', en.popup_case1_settingBottomText_InstallOrigin3rdParty),
+        popup_case1_settingBottomText_InstallOriginGPlay: getStr('popup_case1_settingBottomText_InstallOriginGPlay', en.popup_case1_settingBottomText_InstallOriginGPlay),
+        popup_case1_settingOption1_FamilyFriendlyLoadingText: getStr('popup_case1_settingOption1_FamilyFriendlyLoadingText', en.popup_case1_settingOption1_FamilyFriendlyLoadingText),
+        popup_case1_settingOption1_FamilyFriendlyLoadingTextDescription: getStr('popup_case1_settingOption1_FamilyFriendlyLoadingTextDescription', en.popup_case1_settingOption1_FamilyFriendlyLoadingTextDescription),
+        popup_case1_settingOption2_ExamNotifications: getStr('popup_case1_settingOption2_ExamNotifications', en.popup_case1_settingOption2_ExamNotifications),
+        popup_case1_settingOption2_ExamNotificationsDescription: getStr('popup_case1_settingOption2_ExamNotificationsDescription', en.popup_case1_settingOption2_ExamNotificationsDescription),
+        popup_case1_settingOption3_ClassNotifications: getStr('popup_case1_settingOption3_ClassNotifications', en.popup_case1_settingOption3_ClassNotifications),
+        popup_case1_settingOption3_ClassNotificationsDescription: getStr('popup_case1_settingOption3_ClassNotificationsDescription', en.popup_case1_settingOption3_ClassNotificationsDescription),
+        popup_case1_settingOption4_PaymentNotifications: getStr('popup_case1_settingOption4_PaymentNotifications', en.popup_case1_settingOption4_PaymentNotifications),
+        popup_case1_settingOption4_PaymentNotificationsDescription: getStr('popup_case1_settingOption4_PaymentNotificationsDescription', en.popup_case1_settingOption4_PaymentNotificationsDescription),
+        popup_case1_settingOption5_PeriodsNotifications: getStr('popup_case1_settingOption5_PeriodsNotifications', en.popup_case1_settingOption5_PeriodsNotifications),
+        popup_case1_settingOption5_PeriodsNotificationsDescription: getStr('popup_case1_settingOption5_PeriodsNotificationsDescription', en.popup_case1_settingOption5_PeriodsNotificationsDescription),
+        popup_case1_settingOption_MessageNotifications: getStr('popup_case1_settingOption_MessageNotifications', en.popup_case1_settingOption_MessageNotifications),
+        popup_case1_settingOption_MessageNotificationsDescription: getStr('popup_case1_settingOption_MessageNotificationsDescription', en.popup_case1_settingOption_MessageNotificationsDescription),
+        popup_case1_settingOption6_AppHaptics: getStr('popup_case1_settingOption6_AppHaptics', en.popup_case1_settingOption6_AppHaptics),
+        popup_case1_settingOption6_AppHapticsDescription: getStr('popup_case1_settingOption6_AppHapticsDescription', en.popup_case1_settingOption6_AppHapticsDescription),
+        popup_case1_settingOption7_WeekOffset: getStr('popup_case1_settingOption7_WeekOffset', en.popup_case1_settingOption7_WeekOffset),
+        popup_case1_settingOption7_WeekOffsetDescription: getStr('popup_case1_settingOption7_WeekOffsetDescription', en.popup_case1_settingOption7_WeekOffsetDescription),
+        popup_case1_settingOption7_WeekOffsetAuto: getStr('popup_case1_settingOption7_WeekOffsetAuto', en.popup_case1_settingOption7_WeekOffsetAuto),
+        popup_case1_SettingsHeader: getStr('popup_case1_SettingsHeader', en.popup_case1_SettingsHeader),
+        popup_case2_RateAppPopup: getStr('popup_case2_RateAppPopup', en.popup_case2_RateAppPopup),
+        popup_case2_RateAppPopupDescription: getStr('popup_case2_RateAppPopupDescription', en.popup_case2_RateAppPopupDescription),
+        popup_case2_RateButton: getStr('popup_case2_RateButton', en.popup_case2_RateButton),
+        popup_case3_MessagesHeader: getStr('popup_case3_MessagesHeader', en.popup_case3_MessagesHeader),
+        clickableText_OnCopy: getStr('clickableText_OnCopy', en.clickableText_OnCopy),
+        popup_case4_5_SubjectCode: getStr('popup_case4_5_SubjectCode', en.popup_case4_5_SubjectCode),
+        popup_case4_5_SubjectLocation: getStr('popup_case4_5_SubjectLocation', en.popup_case4_5_SubjectLocation),
+        popup_case4_SubjectStartTime: getStr('popup_case4_SubjectStartTime', en.popup_case4_SubjectStartTime),
+        popup_case4_SubjectInfo: getStr('popup_case4_SubjectInfo', en.popup_case4_SubjectInfo),
+        popup_case4_TeachedBy: getStr('popup_case4_TeachedBy', en.popup_case4_TeachedBy),
+        popup_case5_ExamInfo: getStr('popup_case5_ExamInfo', en.popup_case5_ExamInfo),
+        popup_case5_ExamStartTime: getStr('popup_case5_ExamStartTime', en.popup_case5_ExamStartTime),
+        popup_case6_AccountError: getStr('popup_case6_AccountError', en.popup_case6_AccountError),
+        popup_case6_AccountErrorDescription: getStr('popup_case6_AccountErrorDescription', en.popup_case6_AccountErrorDescription),
+        popup_case6_AccountErrorLogoutButton: getStr('popup_case6_AccountErrorLogoutButton', en.popup_case6_AccountErrorLogoutButton),
+        popup_case1_settingOption8_LangaugeSelection: getStr('popup_case1_settingOption8_LangaugeSelection', en.popup_case1_settingOption8_LangaugeSelection),
+        popup_case1_settingOption8_LangaugeSelectionDescription: getStr('popup_case1_settingOption8_LangaugeSelectionDescription', en.popup_case1_settingOption8_LangaugeSelectionDescription),
+        popup_case7_ButtonUpdateNow: getStr('popup_case7_ButtonUpdateNow', en.popup_case7_ButtonUpdateNow),
+        popup_case7_ObsolteAppVersion: getStr('popup_case7_ObsolteAppVersion', en.popup_case7_ObsolteAppVersion),
+        popup_case7_ObsolteAppVersionDescription: getStr('popup_case7_ObsolteAppVersionDescription', en.popup_case7_ObsolteAppVersionDescription),
+        popup_caseDefault_InvalidPopupState: getStr('popup_caseDefault_InvalidPopupState', en.popup_caseDefault_InvalidPopupState),
+        popup_case8_AcceptLanguageSuggestion: getStr('popup_case8_AcceptLanguageSuggestion', en.popup_case8_AcceptLanguageSuggestion),
+        popup_case8_AcceptLanguageSuggestionDescription: getStr('popup_case8_AcceptLanguageSuggestionDescription', en.popup_case8_AcceptLanguageSuggestionDescription),
+        popup_case8_ButtonAcceptLang: getStr('popup_case8_ButtonAcceptLang', en.popup_case8_ButtonAcceptLang),
+        popup_case1_langSwap_DownloadingLang: getStr('popup_case1_langSwap_DownloadingLang', en.popup_case1_langSwap_DownloadingLang),
+        popup_case1_langSwap_DownloadingLangFail: getStr('popup_case1_langSwap_DownloadingLangFail', en.popup_case1_langSwap_DownloadingLangFail),
+        popup_case1_settingOption9_ThemeSwap: getStr('popup_case1_settingOption9_ThemeSwap', en.popup_case1_settingOption9_ThemeSwap),
+        popup_case1_settingOption9_ThemeSwapDescription: getStr('popup_case1_settingOption9_ThemeSwapDescription', en.popup_case1_settingOption9_ThemeSwapDescription),
+        popup_case1_themeSwap_DownloadingThemeFail: getStr('popup_case1_themeSwap_DownloadingThemeFail', en.popup_case1_themeSwap_DownloadingThemeFail),
+        rootpage_setupPage_IcsImport: getStr('rootpage_setupPage_IcsImport', en.rootpage_setupPage_IcsImport),
+        rootpage_setupPage_IcsImportDescription: getStr('rootpage_setupPage_IcsImportDescription', en.rootpage_setupPage_IcsImportDescription),
+        rootpage_setupPage_OtherUsageModes: getStr('rootpage_setupPage_OtherUsageModes', en.rootpage_setupPage_OtherUsageModes),
+        calendarLogin_setupPage_InvalidFile: getStr('calendarLogin_setupPage_InvalidFile', en.calendarLogin_setupPage_InvalidFile),
+        calendarLogin_setupPage_LoginViaICSHeader: getStr('calendarLogin_setupPage_LoginViaICSHeader', en.calendarLogin_setupPage_LoginViaICSHeader),
+        calendarLogin_setupPage_WhereIsICSHelper: getStr('calendarLogin_setupPage_WhereIsICSHelper', en.calendarLogin_setupPage_WhereIsICSHelper),
+        calendarLogin_setupPage_WhereIsICSHelperDescription: getStr('calendarLogin_setupPage_WhereIsICSHelperDescription', en.calendarLogin_setupPage_WhereIsICSHelperDescription),
+        calendarLogin_setupPage_ImportICSFileHelpText: getStr('calendarLogin_setupPage_ImportICSFileHelpText', en.calendarLogin_setupPage_ImportICSFileHelpText),
+        calendarLogin_setupPage_ImportICSFileButton: getStr('calendarLogin_setupPage_ImportICSFileButton', en.calendarLogin_setupPage_ImportICSFileButton),
+        topmenu_SemesterSelectorTitle: getStr('topmenu_SemesterSelectorTitle', en.topmenu_SemesterSelectorTitle),
+        topmenu_SemesterToast: getStr('topmenu_SemesterToast', en.topmenu_SemesterToast),
+        topmenu_AccountBalance: getStr('topmenu_AccountBalance', en.topmenu_AccountBalance),
+        topmenu_UnreadMessagesBadge: getStr('topmenu_UnreadMessagesBadge', en.topmenu_UnreadMessagesBadge),
+        topmenu_NoUnreadMessages: getStr('topmenu_NoUnreadMessages', en.topmenu_NoUnreadMessages),
+        topmenu_MessagesTitle: getStr('topmenu_MessagesTitle', en.topmenu_MessagesTitle),
+        topmenu_PaymentsTitle: getStr('topmenu_PaymentsTitle', en.topmenu_PaymentsTitle),
+        topmenu_PetitionsTitle: getStr('topmenu_PetitionsTitle', en.topmenu_PetitionsTitle),
+        topmenu_DocumentsTitle: getStr('topmenu_DocumentsTitle', en.topmenu_DocumentsTitle),
+        topmenu_ProfileTitle: getStr('topmenu_ProfileTitle', en.topmenu_ProfileTitle),
+        petitions_Header: getStr('petitions_Header', en.petitions_Header),
+        petitions_TabAvailable: getStr('petitions_TabAvailable', en.petitions_TabAvailable),
+        petitions_TabSubmitted: getStr('petitions_TabSubmitted', en.petitions_TabSubmitted),
+        petitions_SearchHint: getStr('petitions_SearchHint', en.petitions_SearchHint),
+        petitions_NoAvailable: getStr('petitions_NoAvailable', en.petitions_NoAvailable),
+        petitions_NoSubmitted: getStr('petitions_NoSubmitted', en.petitions_NoSubmitted),
+        petitions_SubmitButton: getStr('petitions_SubmitButton', en.petitions_SubmitButton),
+        petitions_StepFill: getStr('petitions_StepFill', en.petitions_StepFill),
+        petitions_StepPreview: getStr('petitions_StepPreview', en.petitions_StepPreview),
+        petitions_SubmitSuccess: getStr('petitions_SubmitSuccess', en.petitions_SubmitSuccess),
+        petitions_SubmitConfirm: getStr('petitions_SubmitConfirm', en.petitions_SubmitConfirm),
+        petitions_Fee: getStr('petitions_Fee', en.petitions_Fee),
+        petitions_ValidUntil: getStr('petitions_ValidUntil', en.petitions_ValidUntil),
+        petitions_StatusAccepted: getStr('petitions_StatusAccepted', en.petitions_StatusAccepted),
+        petitions_StatusRejected: getStr('petitions_StatusRejected', en.petitions_StatusRejected),
+        petitions_StatusProcessing: getStr('petitions_StatusProcessing', en.petitions_StatusProcessing),
+        petitions_TabStarted: getStr('petitions_TabStarted', en.petitions_TabStarted),
+        petitions_NoStarted: getStr('petitions_NoStarted', en.petitions_NoStarted),
+        petitions_Continue: getStr('petitions_Continue', en.petitions_Continue),
+        petitions_Reset: getStr('petitions_Reset', en.petitions_Reset),
+        petitions_ResetConfirm: getStr('petitions_ResetConfirm', en.petitions_ResetConfirm),
+        petitions_ResetSuccess: getStr('petitions_ResetSuccess', en.petitions_ResetSuccess),
+        petitions_ExitOptionsTitle: getStr('petitions_ExitOptionsTitle', en.petitions_ExitOptionsTitle),
+        petitions_ExitKeepDraft: getStr('petitions_ExitKeepDraft', en.petitions_ExitKeepDraft),
+        petitions_ExitDiscard: getStr('petitions_ExitDiscard', en.petitions_ExitDiscard),
+        calendarFilter_Title: getStr('calendarFilter_Title', en.calendarFilter_Title),
+        calendarFilter_TO: getStr('calendarFilter_TO', en.calendarFilter_TO),
+        calendarFilter_TODesc: getStr('calendarFilter_TODesc', en.calendarFilter_TODesc),
+        calendarFilter_Periods: getStr('calendarFilter_Periods', en.calendarFilter_Periods),
+        calendarFilter_PeriodsDesc: getStr('calendarFilter_PeriodsDesc', en.calendarFilter_PeriodsDesc),
+        topbar_TOOn: getStr('topbar_TOOn', en.topbar_TOOn),
+        topbar_TOOff: getStr('topbar_TOOff', en.topbar_TOOff),
+        profile_TabDetails: getStr('profile_TabDetails', en.profile_TabDetails),
+        profile_TabSettings: getStr('profile_TabSettings', en.profile_TabSettings),
+        profile_Header: getStr('profile_Header', en.profile_Header),
+        profile_Subheader: getStr('profile_Subheader', en.profile_Subheader),
+        documents_Header: getStr('documents_Header', en.documents_Header),
+        documents_Subheader: getStr('documents_Subheader', en.documents_Subheader),
+        documents_TabOfficial: getStr('documents_TabOfficial', en.documents_TabOfficial),
+        documents_TabSubmitted: getStr('documents_TabSubmitted', en.documents_TabSubmitted),
+        documents_TabTr: getStr('documents_TabTr', en.documents_TabTr),
+      );
+    }
+    catch(error){
+      debugPrint("LanguagePack parse error for $countryId: $error");
+      Future.delayed(Duration.zero,(){
+        onLanguageOutdated();
+      });
+      return AppStrings.getLanguagePack();
+    }
+    // add to db
+    AppStrings._downloadedSupportedLanguagesFlags.add(decodedLangPack.language_flag);
+    AppStrings._downloadedSupportedLanguages.add(countryId);
+    AppStrings._downloadedLanguages.addAll({countryId:decodedLangPack});
+
+    return decodedLangPack;
+  }
+
+  static String toJson(LanguagePack lang){
+    final json = conv.json.encode({
+      'language_flag':lang.language_flag,
+      'rootpage_setupPage_SelectLoginTypeHeader':lang.rootpage_setupPage_SelectLoginTypeHeader,
+      'rootpage_setupPage_InstitutesSelection':lang.rootpage_setupPage_InstitutesSelection,
+      'rootpage_setupPage_InstitutesSelectionDescription':lang.rootpage_setupPage_InstitutesSelectionDescription,
+      'rootpage_setupPage_UrlLogin':lang.rootpage_setupPage_UrlLogin,
+      'rootpage_setupPage_UrlLoginDescription':lang.rootpage_setupPage_UrlLoginDescription,
+      'rootpage_setupPage_AppProblemReporting':lang.rootpage_setupPage_AppProblemReporting,
+      'instituteSelection_setupPage_LoadingText':lang.instituteSelection_setupPage_LoadingText,
+      'instituteSelection_setupPage_NoNetwork':lang.instituteSelection_setupPage_NoNetwork,
+      'instituteSelection_setupPage_SelectValidInstitute':lang.instituteSelection_setupPage_SelectValidInstitute,
+      'instituteSelection_setupPage_SelectInstitute':lang.instituteSelection_setupPage_SelectInstitute,
+      'instituteSelection_setupPage_Search':lang.instituteSelection_setupPage_Search,
+      'instituteSelection_setupPage_SearchNotFound':lang.instituteSelection_setupPage_SearchNotFound,
+      'instituteSelection_setupPage_InstituteCantFindHelpText':lang.instituteSelection_setupPage_InstituteCantFindHelpText,
+      'instituteSelection_setupPage_InstituteCantFindHelpTextDescription':lang.instituteSelection_setupPage_InstituteCantFindHelpTextDescription,
+      'any_setupPage_GoBack':lang.any_setupPage_GoBack,
+      'any_setupPage_ProceedLogin':lang.any_setupPage_ProceedLogin,
+      'urlLogin_setupPage_InvalidUrl':lang.urlLogin_setupPage_InvalidUrl,
+      'urlLogin_setupPage_LoginViaURlHeader':lang.urlLogin_setupPage_LoginViaURlHeader,
+      'urlLogin_setupPage_InstituteNeptunUrl':lang.urlLogin_setupPage_InstituteNeptunUrl,
+      'urlLogin_setupPage_InstituteNeptunUrlInvalid':lang.urlLogin_setupPage_InstituteNeptunUrlInvalid,
+      'urlLogin_setupPage_WhereIsURLHelper':lang.urlLogin_setupPage_WhereIsURLHelper,
+      'urlLogin_setupPage_WhereIsURLHelperDescription':lang.urlLogin_setupPage_WhereIsURLHelperDescription,
+      'loginPage_setupPage_InvalidCredentials':lang.loginPage_setupPage_InvalidCredentials,
+      'loginPage_setupPage_LoginHeaderText':lang.loginPage_setupPage_LoginHeaderText,
+      'loginPage_setupPage_ActivityCacheInvalidHelper':lang.loginPage_setupPage_ActivityCacheInvalidHelper,
+      'loginPage_setupPage_NeptunCode':lang.loginPage_setupPage_NeptunCode,
+      'loginPage_setupPage_Password':lang.loginPage_setupPage_Password,
+      'loginPage_setupPage_InvalidCredentialsEntered':lang.loginPage_setupPage_InvalidCredentialsEntered,
+      'loginPage_setupPage_2faWarning':lang.loginPage_setupPage_2faWarning,
+      'loginPage_setupPage_2faWarningDescription':lang.loginPage_setupPage_2faWarningDescription,
+      'loginPage_setupPage_LogInButton':lang.loginPage_setupPage_LogInButton,
+      'loginPage_setupPage_LoginInProgress':lang.loginPage_setupPage_LoginInProgress,
+      'loginPage_setupPage_LoginInProgressSlow':lang.loginPage_setupPage_LoginInProgressSlow,
+      'api_monthJan_Universal':lang.api_monthJan_Universal,
+      'api_monthFeb_Universal':lang.api_monthFeb_Universal,
+      'api_monthMar_Universal':lang.api_monthMar_Universal,
+      'api_monthApr_Universal':lang.api_monthApr_Universal,
+      'api_monthJun_Universal':lang.api_monthJun_Universal,
+      'api_monthMay_Universal':lang.api_monthMay_Universal,
+      'api_monthJul_Universal':lang.api_monthJul_Universal,
+      'api_monthAug_Universal':lang.api_monthAug_Universal,
+      'api_monthSep_Universal':lang.api_monthSep_Universal,
+      'api_monthOkt_Universal':lang.api_monthOkt_Universal,
+      'api_monthNov_Universal':lang.api_monthNov_Universal,
+      'api_monthDec_Universal':lang.api_monthDec_Universal,
+      'api_dayMon_Universal':lang.api_dayMon_Universal,
+      'api_dayTue_Universal':lang.api_dayTue_Universal,
+      'api_dayWed_Universal':lang.api_dayWed_Universal,
+      'api_dayThu_Universal':lang.api_dayThu_Universal,
+      'api_dayFri_Universal':lang.api_dayFri_Universal,
+      'api_daySat_Universal':lang.api_daySat_Universal,
+      'api_daySun_Universal':lang.api_daySun_Universal,
+      'api_loadingScreenHintFriendly1_Universal':lang.api_loadingScreenHintFriendly1_Universal,
+      'api_loadingScreenHintFriendly2_Universal':lang.api_loadingScreenHintFriendly2_Universal,
+      'api_loadingScreenHintFriendly3_Universal':lang.api_loadingScreenHintFriendly3_Universal,
+      'api_loadingScreenHintFriendly4_Universal':lang.api_loadingScreenHintFriendly4_Universal,
+      'api_loadingScreenHintFriendly5_Universal':lang.api_loadingScreenHintFriendly5_Universal,
+      'api_loadingScreenHintFriendly6_Universal':lang.api_loadingScreenHintFriendly6_Universal,
+      'api_loadingScreenHintFriendly7_Universal':lang.api_loadingScreenHintFriendly7_Universal,
+      'api_loadingScreenHint1_Universal':lang.api_loadingScreenHint1_Universal,
+      'api_loadingScreenHint2_Universal':lang.api_loadingScreenHint2_Universal,
+      'api_loadingScreenHint3_Universal':lang.api_loadingScreenHint3_Universal,
+      'api_loadingScreenHint4_Universal':lang.api_loadingScreenHint4_Universal,
+      'api_loadingScreenHint5_Universal':lang.api_loadingScreenHint5_Universal,
+      'api_loadingScreenHint6_Universal':lang.api_loadingScreenHint6_Universal,
+      'api_loadingScreenHint7_Universal':lang.api_loadingScreenHint7_Universal,
+      'api_loadingScreenHintFriendlyMini1_Universal':lang.api_loadingScreenHintFriendlyMini1_Universal,
+      'api_loadingScreenHintFriendlyMini2_Universal':lang.api_loadingScreenHintFriendlyMini2_Universal,
+      'api_loadingScreenHintFriendlyMini3_Universal':lang.api_loadingScreenHintFriendlyMini3_Universal,
+      'api_loadingScreenHintFriendlyMini4_Universal':lang.api_loadingScreenHintFriendlyMini4_Universal,
+      'api_loadingScreenHintMini1_Universal':lang.api_loadingScreenHintMini1_Universal,
+      'api_loadingScreenHintMini2_Universal':lang.api_loadingScreenHintMini2_Universal,
+      'api_loadingScreenHintMini3_Universal':lang.api_loadingScreenHintMini3_Universal,
+      'api_noData_Universal':lang.api_noData_Universal,
+      'view_header_Calendar':lang.view_header_Calendar,
+      'view_header_Messages':lang.view_header_Messages,
+      'view_header_Payments':lang.view_header_Payments,
+      'view_header_Periods':lang.view_header_Periods,
+      'view_header_Subjects':lang.view_header_Subjects,
+      'topheader_calendar_greetMessage_1to6':lang.topheader_calendar_greetMessage_1to6,
+      'topheader_calendar_greetMessage_6to9':lang.topheader_calendar_greetMessage_6to9,
+      'topheader_calendar_greetMessage_9to13':lang.topheader_calendar_greetMessage_9to13,
+      'topheader_calendar_greetMessage_13to17':lang.topheader_calendar_greetMessage_13to17,
+      'topheader_calendar_greetMessage_17to21':lang.topheader_calendar_greetMessage_17to21,
+      'topheader_calendar_greetMessage_21to1':lang.topheader_calendar_greetMessage_21to1,
+      'topheader_subjects_CreditsInSemester':lang.topheader_subjects_CreditsInSemester,
+      'topheader_payments_TotalMoneySpent':lang.topheader_payments_TotalMoneySpent,
+      'topheader_periods_ActiveText':lang.topheader_periods_ActiveText,
+      'topheader_periods_ExpiredText':lang.topheader_periods_ExpiredText,
+      'topheader_periods_FutureText':lang.topheader_periods_FutureText,
+      'topheader_periods_MainHeader':lang.topheader_periods_MainHeader,
+      'topheader_messages_UnreadMessages':lang.topheader_messages_UnreadMessages,
+      'topmenu_buttons_Bugreport':lang.topmenu_buttons_Bugreport,
+      'topmenu_buttons_Logout':lang.topmenu_buttons_Logout,
+      'topmenu_buttons_Settings':lang.topmenu_buttons_Settings,
+      'topmenu_buttons_SupportDev':lang.topmenu_buttons_SupportDev,
+      'topmenu_Greet':lang.topmenu_Greet,
+      'topmenu_LoginPlace':lang.topmenu_LoginPlace,
+      'topmenu_buttons_LogoutSuccessToast':lang.topmenu_buttons_LogoutSuccessToast,
+      'topmenu_SemesterSelectorTitle':lang.topmenu_SemesterSelectorTitle,
+      'topmenu_SemesterToast':lang.topmenu_SemesterToast,
+      'topmenu_AccountBalance':lang.topmenu_AccountBalance,
+      'topmenu_UnreadMessagesBadge':lang.topmenu_UnreadMessagesBadge,
+      'topmenu_NoUnreadMessages':lang.topmenu_NoUnreadMessages,
+      'topmenu_MessagesTitle':lang.topmenu_MessagesTitle,
+      'topmenu_PaymentsTitle':lang.topmenu_PaymentsTitle,
+      'calendarPage_FreeDay':lang.calendarPage_FreeDay,
+      'calendarPage_weekNav_ClassesThisWeekFull':lang.calendarPage_weekNav_ClassesThisWeekFull,
+      'calendarPage_weekNav_ClassesThisWeekOneDay':lang.calendarPage_weekNav_ClassesThisWeekOneDay,
+      'calendarPage_weekNav_StudyWeek':lang.calendarPage_weekNav_StudyWeek,
+      'calendarPage_weekNav_JumpToCurrentWeek':lang.calendarPage_weekNav_JumpToCurrentWeek,
+      'calendar_status_online':lang.calendar_status_online,
+      'calendar_status_offline':lang.calendar_status_offline,
+      'timetable_badge_overlapping':lang.timetable_badge_overlapping,
+      'timetable_badge_long_lesson':lang.timetable_badge_long_lesson,
+      'timetable_break_title':lang.timetable_break_title,
+      'timetable_next_class_prefix':lang.timetable_next_class_prefix,
+      'popup_2fa_title':lang.popup_2fa_title,
+      'popup_2fa_desc':lang.popup_2fa_desc,
+      'popup_2fa_cancel':lang.popup_2fa_cancel,
+      'calendarPage_weekNav_ClassesThisWeekEmpty':lang.calendarPage_weekNav_ClassesThisWeekEmpty,
+      'calendarPage_weekNav_ClassesThisWeekLoading':lang.calendarPage_weekNav_ClassesThisWeekLoading,
+      'markbookPage_AverageDisplay':lang.markbookPage_AverageDisplay,
+      'markbookPage_AverageScholarshipDisplay':lang.markbookPage_AverageScholarshipDisplay,
+      'markbookPage_NoGrades':lang.markbookPage_NoGrades,
+      'markbookPage_Empty':lang.markbookPage_Empty,
+      'markbookPage_CompletedLine':lang.markbookPage_CompletedLine,
+      'paymentPage_Empty':lang.paymentPage_Empty,
+      'paymentPage_MoneyDisplay':lang.paymentPage_MoneyDisplay,
+      'paymentPage_PaymentDeadlineTime':lang.paymentPage_PaymentDeadlineTime,
+      'paymentPage_PaymentMissedTime':lang.paymentPage_PaymentMissedTime,
+      'periodPage_ActiveDays':lang.periodPage_ActiveDays,
+      'periodPage_Empty':lang.periodPage_Empty,
+      'periodPage_Expired':lang.periodPage_Expired,
+      'periodPage_ExpiredDays':lang.periodPage_ExpiredDays,
+      'periodPage_StartDays':lang.periodPage_StartDays,
+      'periodPage_Starts':lang.periodPage_Starts,
+      'messagePage_SentBy':lang.messagePage_SentBy,
+      'messagePage_Empty':lang.messagePage_Empty,
+      'messagePage_MarkAllAsRead':lang.messagePage_MarkAllAsRead,
+      'messagePage_AllMarkedAsReadToast':lang.messagePage_AllMarkedAsReadToast,
+      'popup_case0_GhostGradeHeader':lang.popup_case0_GhostGradeHeader,
+      'popup_case0_SelectGrade':lang.popup_case0_SelectGrade,
+      'popup_caseAll_OkButton':lang.popup_caseAll_OkButton,
+      'popup_case1_settingBottomText_InstallOrigin':lang.popup_case1_settingBottomText_InstallOrigin,
+      'popup_case1_settingBottomText_InstallOrigin3rdParty':lang.popup_case1_settingBottomText_InstallOrigin3rdParty,
+      'popup_case1_settingBottomText_InstallOriginGPlay':lang.popup_case1_settingBottomText_InstallOriginGPlay,
+      'popup_case1_settingOption1_FamilyFriendlyLoadingText':lang.popup_case1_settingOption1_FamilyFriendlyLoadingText,
+      'popup_case1_settingOption1_FamilyFriendlyLoadingTextDescription':lang.popup_case1_settingOption1_FamilyFriendlyLoadingTextDescription,
+      'popup_case1_settingOption2_ExamNotifications':lang.popup_case1_settingOption2_ExamNotifications,
+      'popup_case1_settingOption2_ExamNotificationsDescription':lang.popup_case1_settingOption2_ExamNotificationsDescription,
+      'popup_case1_settingOption3_ClassNotifications':lang.popup_case1_settingOption3_ClassNotifications,
+      'popup_case1_settingOption3_ClassNotificationsDescription':lang.popup_case1_settingOption3_ClassNotificationsDescription,
+      'popup_case1_settingOption4_PaymentNotifications':lang.popup_case1_settingOption4_PaymentNotifications,
+      'popup_case1_settingOption4_PaymentNotificationsDescription':lang.popup_case1_settingOption4_PaymentNotificationsDescription,
+      'popup_case1_settingOption5_PeriodsNotifications':lang.popup_case1_settingOption5_PeriodsNotifications,
+      'popup_case1_settingOption5_PeriodsNotificationsDescription':lang.popup_case1_settingOption5_PeriodsNotificationsDescription,
+      'popup_case1_settingOption_MessageNotifications':lang.popup_case1_settingOption_MessageNotifications,
+      'popup_case1_settingOption_MessageNotificationsDescription':lang.popup_case1_settingOption_MessageNotificationsDescription,
+      'popup_case1_settingOption6_AppHaptics':lang.popup_case1_settingOption6_AppHaptics,
+      'popup_case1_settingOption6_AppHapticsDescription':lang.popup_case1_settingOption6_AppHapticsDescription,
+      'popup_case1_settingOption7_WeekOffset':lang.popup_case1_settingOption7_WeekOffset,
+      'popup_case1_settingOption7_WeekOffsetDescription':lang.popup_case1_settingOption7_WeekOffsetDescription,
+      'popup_case1_settingOption7_WeekOffsetAuto':lang.popup_case1_settingOption7_WeekOffsetAuto,
+      'popup_case1_SettingsHeader':lang.popup_case1_SettingsHeader,
+      'popup_case2_RateAppPopup':lang.popup_case2_RateAppPopup,
+      'popup_case2_RateAppPopupDescription':lang.popup_case2_RateAppPopupDescription,
+      'popup_case2_RateButton':lang.popup_case2_RateButton,
+      'popup_case3_MessagesHeader':lang.popup_case3_MessagesHeader,
+      'clickableText_OnCopy':lang.clickableText_OnCopy,
+      'popup_case4_5_SubjectCode':lang.popup_case4_5_SubjectCode,
+      'popup_case4_5_SubjectLocation':lang.popup_case4_5_SubjectLocation,
+      'popup_case4_SubjectStartTime':lang.popup_case4_SubjectStartTime,
+      'popup_case4_SubjectInfo':lang.popup_case4_SubjectInfo,
+      'popup_case4_TeachedBy':lang.popup_case4_TeachedBy,
+      'popup_case5_ExamInfo':lang.popup_case5_ExamInfo,
+      'popup_case5_ExamStartTime':lang.popup_case5_ExamStartTime,
+      'popup_case6_AccountError':lang.popup_case6_AccountError,
+      'popup_case6_AccountErrorDescription':lang.popup_case6_AccountErrorDescription,
+      'popup_case6_AccountErrorLogoutButton':lang.popup_case6_AccountErrorLogoutButton,
+      'popup_case1_settingOption8_LangaugeSelection':lang.popup_case1_settingOption8_LangaugeSelection,
+      'popup_case1_settingOption8_LangaugeSelectionDescription':lang.popup_case1_settingOption8_LangaugeSelectionDescription,
+      'popup_case7_ButtonUpdateNow':lang.popup_case7_ButtonUpdateNow,
+      'popup_case7_ObsolteAppVersion':lang.popup_case7_ObsolteAppVersion,
+      'popup_case7_ObsolteAppVersionDescription':lang.popup_case7_ObsolteAppVersionDescription,
+      'popup_caseDefault_InvalidPopupState':lang.popup_caseDefault_InvalidPopupState,
+      'popup_case8_AcceptLanguageSuggestion':lang.popup_case8_AcceptLanguageSuggestion,
+      'popup_case8_AcceptLanguageSuggestionDescription':lang.popup_case8_AcceptLanguageSuggestionDescription,
+      'popup_case8_ButtonAcceptLang':lang.popup_case8_ButtonAcceptLang,
+      'popup_case1_langSwap_DownloadingLang':lang.popup_case1_langSwap_DownloadingLang,
+      'popup_case1_langSwap_DownloadingLangFail':lang.popup_case1_langSwap_DownloadingLangFail,
+      'popup_case1_settingOption9_ThemeSwap':lang.popup_case1_settingOption9_ThemeSwap,
+      'popup_case1_settingOption9_ThemeSwapDescription':lang.popup_case1_settingOption9_ThemeSwapDescription,
+      'popup_case1_themeSwap_DownloadingThemeFail':lang.popup_case1_themeSwap_DownloadingThemeFail,
+      'rootpage_setupPage_IcsImport':lang.rootpage_setupPage_IcsImport,
+      'rootpage_setupPage_IcsImportDescription':lang.rootpage_setupPage_IcsImportDescription,
+      'rootpage_setupPage_OtherUsageModes':lang.rootpage_setupPage_OtherUsageModes,
+      'calendarLogin_setupPage_InvalidFile':lang.calendarLogin_setupPage_InvalidFile,
+      'calendarLogin_setupPage_LoginViaICSHeader':lang.calendarLogin_setupPage_LoginViaICSHeader,
+      'calendarLogin_setupPage_WhereIsICSHelper':lang.calendarLogin_setupPage_WhereIsICSHelper,
+      'calendarLogin_setupPage_WhereIsICSHelperDescription':lang.calendarLogin_setupPage_WhereIsICSHelperDescription,
+      'calendarLogin_setupPage_ImportICSFileHelpText':lang.calendarLogin_setupPage_ImportICSFileHelpText,
+      'calendarLogin_setupPage_ImportICSFileButton':lang.calendarLogin_setupPage_ImportICSFileButton,
+      'topmenu_PetitionsTitle':lang.topmenu_PetitionsTitle,
+      'topmenu_DocumentsTitle':lang.topmenu_DocumentsTitle,
+      'topmenu_ProfileTitle':lang.topmenu_ProfileTitle,
+      'petitions_Header':lang.petitions_Header,
+      'petitions_TabAvailable':lang.petitions_TabAvailable,
+      'petitions_TabSubmitted':lang.petitions_TabSubmitted,
+      'petitions_SearchHint':lang.petitions_SearchHint,
+      'petitions_NoAvailable':lang.petitions_NoAvailable,
+      'petitions_NoSubmitted':lang.petitions_NoSubmitted,
+      'petitions_SubmitButton':lang.petitions_SubmitButton,
+      'petitions_StepFill':lang.petitions_StepFill,
+      'petitions_StepPreview':lang.petitions_StepPreview,
+      'petitions_SubmitSuccess':lang.petitions_SubmitSuccess,
+      'petitions_SubmitConfirm':lang.petitions_SubmitConfirm,
+      'petitions_Fee':lang.petitions_Fee,
+      'petitions_ValidUntil':lang.petitions_ValidUntil,
+      'petitions_StatusAccepted':lang.petitions_StatusAccepted,
+      'petitions_StatusRejected':lang.petitions_StatusRejected,
+      'petitions_StatusProcessing':lang.petitions_StatusProcessing,
+      'petitions_TabStarted':lang.petitions_TabStarted,
+      'petitions_NoStarted':lang.petitions_NoStarted,
+      'petitions_Continue':lang.petitions_Continue,
+      'petitions_Reset':lang.petitions_Reset,
+      'petitions_ResetConfirm':lang.petitions_ResetConfirm,
+      'petitions_ResetSuccess':lang.petitions_ResetSuccess,
+      'petitions_ExitOptionsTitle':lang.petitions_ExitOptionsTitle,
+      'petitions_ExitKeepDraft':lang.petitions_ExitKeepDraft,
+      'petitions_ExitDiscard':lang.petitions_ExitDiscard,
+      'calendarFilter_Title':lang.calendarFilter_Title,
+      'calendarFilter_TO':lang.calendarFilter_TO,
+      'calendarFilter_TODesc':lang.calendarFilter_TODesc,
+      'calendarFilter_Periods':lang.calendarFilter_Periods,
+      'calendarFilter_PeriodsDesc':lang.calendarFilter_PeriodsDesc,
+      'topbar_TOOn':lang.topbar_TOOn,
+      'topbar_TOOff':lang.topbar_TOOff,
+      'profile_TabDetails':lang.profile_TabDetails,
+      'profile_TabSettings':lang.profile_TabSettings,
+      'profile_Header':lang.profile_Header,
+      'profile_Subheader':lang.profile_Subheader,
+      'documents_Header':lang.documents_Header,
+      'documents_Subheader':lang.documents_Subheader,
+      'documents_TabOfficial':lang.documents_TabOfficial,
+      'documents_TabSubmitted':lang.documents_TabSubmitted,
+      'documents_TabTr':lang.documents_TabTr
+    });
+    return json;
+  }
+}
+
+class LanguageManager{
+  static Future<void> suggestLang(BuildContext context, VoidCallback? blur, VoidCallback? closeBlur)async{
+    final cacheTime = await getInt('SuggestLangUpdateCacheTime') ?? -1;
+    final nudgeAmount = await getInt('SuggestLangNudgeTime') ?? 0;
+    if((DateTime.now().millisecondsSinceEpoch - cacheTime) > const Duration(hours: 24).inMilliseconds ||
+      nudgeAmount >= 3){
+      return;
+    }
+    final supportedUserLang = await Language.checkSupportedUserLanguage();
+    final preferedLang = DataCache.getUserSelectedLanguage()!;
+    if(!supportedUserLang || preferedLang != -1 || !DataCache.getHasNetwork()){
+      // applied via native, or has a language preference, or no network
+      return;
+    }
+    final deviceLang = (kIsWeb
+        ? WidgetsBinding.instance.platformDispatcher.locale.languageCode
+        : Platform.localeName.split('_')[0]).toLowerCase();
+    var langPack = await Language.getLanguagePackById(await Language.getAllLanguages(), deviceLang);
+    if(langPack == null){
+      return;
+    }
+    AppStrings.saveDownloadedLanguageData();
+    AppStrings.setupPopupPreviews(langPack);
+    await saveInt('SuggestLangUpdateCacheTime', DateTime.now().millisecondsSinceEpoch);
+    await saveInt('SuggestLangNudgeTime', nudgeAmount + 1);
+    PopupWidgetHandler(mode: 8, callback: (_)async{
+      final idx = AppStrings.getAllLangCodes().indexOf(deviceLang);
+      await DataCache.setUserSelectedLanguage(idx);
+      AppStrings.initialize();
+      Navigator.popUntil(context, (route) => route.willHandlePopInternally);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const Splitter()));
+    });
+    PopupWidgetHandler.doPopup(context, blur: blur, closeBlur: closeBlur);
+  }
+
+  static Future<void> refreshAllDownloadedLangs()async{
+    final cacheTime = await getInt('RefreshLangCacheTime') ?? -1;
+    if((DateTime.now().millisecondsSinceEpoch - cacheTime) > const Duration(hours: 24).inMilliseconds || !DataCache.getHasNetwork()){
+      // not enough time passed, or no network
+      return;
+    }
+    final downloadedLangs = AppStrings.getAllDownloadedCodes();
+    await saveInt('RefreshLangCacheTime', DateTime.now().millisecondsSinceEpoch);
+    if(downloadedLangs.isEmpty){
+      return;
+    }
+    final allLangs = await Language.getAllLanguages();
+    for(var item in downloadedLangs){
+      await Language.getLanguagePackById(allLangs, item);
+    }
+    AppStrings.saveDownloadedLanguageData();
+    // once the app is reloaded, changes will be seen, but no need to make it instant, as nothing is missing
+  }
+}

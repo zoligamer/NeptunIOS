@@ -1,0 +1,140 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:jupiter/colors.dart';
+import 'package:jupiter/storage.dart';
+import 'package:provider/provider.dart';
+import 'Misc/background_service.dart';
+import 'Pages/startup_page.dart';
+import 'language.dart';
+
+void main() {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  BackgroundService.initialize();
+  DataCache.loadThemeOnly().whenComplete((){
+    AppColors.initialize();
+    AppStrings.initialize();
+    final app = const NeptunApp();
+    final themeNotifier = ThemeNotifier(ThemeNotifier._initialTheme(AppColors.getTheme().basedOnDark));
+    runApp(
+      ChangeNotifierProvider(
+        create: (_) => themeNotifier,
+        child: app,
+      ),
+    );
+    WidgetsBinding.instance.addObserver(app);
+  });
+}
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+class NeptunApp extends StatelessWidget with WidgetsBindingObserver {
+  const NeptunApp({super.key});
+
+  @override
+  void didChangePlatformBrightness(){
+    final isDark = MediaQuery.of(navigatorKey.currentContext!).platformBrightness == Brightness.dark;
+    AppColors.setCurrentSystemTheme(!isDark);
+    final preferedTheme = !isDark ? 'Dark' : 'Light';
+    AppColors.setUserThemeByName(preferedTheme, navigatorKey.currentContext!);
+    DataCache.setPreferredAppTheme(preferedTheme);
+    super.didChangePlatformBrightness();
+  }
+
+  static bool _themeSetup = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = AppColors.getTheme().basedOnDark;
+    AppColors.setCurrentSystemTheme(isDark);
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+    if(!_themeSetup){
+      _themeSetup = true;
+      WidgetsBinding.instance.addPostFrameCallback((_)async{
+        await AppColors.loadDownloadedPaletteData(context);
+        final isDark = AppColors.getTheme().basedOnDark;
+        AppColors.setCurrentSystemTheme(isDark);
+        var userTheme = DataCache.getPreferredAppTheme();
+        if(userTheme == null || userTheme == 'Dark' || userTheme == 'Light'){
+          userTheme = isDark ? 'Dark' : 'Light';
+        }
+        AppColors.setUserThemeByName(userTheme, navigatorKey.currentContext!);
+        AppColors.refreshThemeIndexing();
+      });
+    }
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      title: 'Neptun Mobile',
+      theme: themeNotifier._themeData,
+      home: const Splitter(),
+    );
+  }
+}
+
+class ThemeNotifier extends ChangeNotifier {
+
+  static ThemeNotifier? _instance;
+
+  ThemeData _themeData;
+  ThemeNotifier(this._themeData){
+    _instance = this;
+  }
+
+  static ThemeNotifier? getInstance(){
+    return _instance;
+  }
+
+  void createNewThemeData(){
+    _themeData = _buildTheme(AppColors.isDarktheme());
+    notifyListeners();
+  }
+
+  ThemeData _buildTheme(bool isDark) {
+    return ThemeData(
+      scaffoldBackgroundColor: AppColors.getTheme().rootBackground,
+      canvasColor: AppColors.getTheme().rootBackground,
+      colorScheme: isDark ? ColorScheme.dark(
+        primary: AppColors.getTheme().primary,
+        onPrimary: AppColors.getTheme().onPrimary,
+        onPrimaryContainer: AppColors.getTheme().onSecondaryContainer,
+        secondary: AppColors.getTheme().secondary,
+        onSecondary: AppColors.getTheme().onSecondary,
+        onSecondaryContainer: AppColors.getTheme().onSecondaryContainer,
+        surface: AppColors.getTheme().rootBackground,
+      ) : ColorScheme.light(
+        primary: AppColors.getTheme().primary,
+        onPrimary: AppColors.getTheme().onPrimary,
+        onPrimaryContainer: AppColors.getTheme().onSecondaryContainer,
+        secondary: AppColors.getTheme().secondary,
+        onSecondary: AppColors.getTheme().onSecondary,
+        onSecondaryContainer: AppColors.getTheme().onSecondaryContainer,
+        surface: AppColors.getTheme().rootBackground,
+      ),
+      useMaterial3: true,
+    );
+  }
+
+  static ThemeData _initialTheme(bool isDark){
+    return ThemeData(
+      scaffoldBackgroundColor: AppColors.getTheme().rootBackground,
+      canvasColor: AppColors.getTheme().rootBackground,
+      colorScheme: isDark ? ColorScheme.dark(
+        primary: AppColors.getTheme().primary,
+        onPrimary: AppColors.getTheme().onPrimary,
+        onPrimaryContainer: AppColors.getTheme().onSecondaryContainer,
+        secondary: AppColors.getTheme().secondary,
+        onSecondary: AppColors.getTheme().onSecondary,
+        onSecondaryContainer: AppColors.getTheme().onSecondaryContainer,
+        surface: AppColors.getTheme().rootBackground,
+      ) : ColorScheme.light(
+        primary: AppColors.getTheme().primary,
+        onPrimary: AppColors.getTheme().onPrimary,
+        onPrimaryContainer: AppColors.getTheme().onSecondaryContainer,
+        secondary: AppColors.getTheme().secondary,
+        onSecondary: AppColors.getTheme().onSecondary,
+        onSecondaryContainer: AppColors.getTheme().onSecondaryContainer,
+        surface: AppColors.getTheme().rootBackground,
+      ),
+      useMaterial3: true,
+    );
+  }
+}

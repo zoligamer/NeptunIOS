@@ -1,15 +1,28 @@
-### Webhely hozzáadása az iPhone Főképernyőjéhez
+# Neptun Mobile
+# Ne maradj le a frissítésekről: https://github.com/zoligamer/Neptun-Mobile-fork/releases/latest
+# BUG REPORT OLDAL: https://kuci.mludio.my.id/index.html OR https://github.com/zoligamer/Neptun-Mobile-fork/issues/new/choose
 
-A gyors elérés érdekében hozzáadhatsz egy weboldalt az iPhone Főképernyőjéhez (PWA / Webalkalmazásként):
+Neptun Mobil alkalmazás.
 
-1. Nyisd meg a **Safari** 🧭 alkalmazást az iPhone-odon.
-2. Nyisd meg a weboldalt, amelyet hozzá szeretnél adni a Főképernyőhöz.
-3. Koppints a **Menü** ☰ ikonra, majd a **Megosztás** lehetőségre.  
-   *(Ha a Lapok sáv alul vagy felül látható, koppints közvetlenül a **Megosztás** 📤 ikonra).*
-4. Görgess le a listában, majd válaszd a **„Főképernyőhöz adás”** lehetőséget.  
-   - *Ha nem látod ezt a lehetőséget: görgess a lista aljára, koppints a **Műveletek szerkesztése** gombra, majd a zöld ⊕ ikonra a „Főképernyőhöz adás” mellett.*  
-   - *Választhatod a **„Megnyitás webalkalmazásként”** opciót is, hogy teljes képernyős appként induljon el.*
-5. Koppints a **Hozzáadás** gombra a jobb felső sarokban.
+Funkciók:
+- Szellemjegyek 👻 Könnyebben megy majd az átlagszámítás!
+- Értesítések 🫨 Nem maradsz le az órákról, vizsgákról, de még a befizetésekről sem!
+- Átlátható órarend 📆 Mindig tudni fogod, hogy a héten milyen órád lesz!
+- Jegyek, átlagok, kreditek, beérkezett üzenetek, befizetések és még sok más
+- Egy modernebb UI.
 
-> *Az ikon csak azon az eszközön jelenik meg, amelyen hozzáadtad.*
-<img width="562" height="1008" alt="image" src="https://github.com/user-attachments/assets/2ac9dc46-828d-461b-84ac-1dc6f5a27a88" />
+**Ha van valami ötleted, vagy simán csak egy hibát akarsz bejelenteni, a hibabejelentés fülnél tedd meg.**
+
+Az alkalmazás még fejlesztés alatt áll, így ez még nem tökéletes. ⚠️
+Az alkalmazás alapjainak fejlesztőjét itt megtalálod! https://github.com/domedav/Neptun-2
+
+## 1.0.0
+Órarend fül, bejelentkezés alapok
+## 1.0.1
+2FA azonosítás. ⚠ Még nem működik teljesen! ⚠
+## 1.0.2
+Accessibility funckió(Még tesztelés alatt), Naptár nézet, Új oldalmenü.
+## 1.0.3 Beta
+Naptár logika újraalkotás, pontos órák, állapotjelző. Pénzügyek, Tárgyak, Üzenetek, Időszakok oldalak működésképesek.
+## 1.0.3
+# Coming soon
